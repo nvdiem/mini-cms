@@ -36,7 +36,7 @@
     @if($post->featuredImage)
       <div class="max-w-5xl mx-auto px-4 sm:px-6 mb-12 sm:mb-20">
         <div class="aspect-[21/9] bg-slate-100 rounded-2xl overflow-hidden shadow-sm">
-          <img src="{{ $post->featuredImage->url() }}" alt="{{ $post->title }}" class="w-full h-full object-cover">
+          <img src="{{ $post->featuredImage->url() }}" alt="{{ $post->featuredImage->alt_text ?? $post->title }}" class="w-full h-full object-cover">
         </div>
       </div>
     @else

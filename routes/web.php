@@ -52,7 +52,7 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function(){
     Route::post('review/{post}/publish', [ReviewController::class, 'publish'])->name('review.publish');
 
     // Media
-    Route::resource('media', MediaController::class)->only(['index','store','destroy']);
+    Route::resource('media', MediaController::class)->parameters(['media' => 'media']);
 
     // Leads
     Route::get('leads', [LeadController::class, 'index'])->name('leads.index');

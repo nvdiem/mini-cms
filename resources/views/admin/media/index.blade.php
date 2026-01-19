@@ -56,11 +56,15 @@
         <div class="p-4 sm:p-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           @foreach($items as $m)
             <div class="group relative border border-border-light dark:border-border-dark rounded-xl overflow-hidden bg-surface-light dark:bg-surface-dark">
-              <div class="aspect-[4/3] bg-slate-100 dark:bg-slate-800">
-                <img src="{{ $m->url() }}" alt="{{ $m->original_name }}" class="h-full w-full object-cover"/>
+              <div class="aspect-[4/3] bg-slate-100 dark:bg-slate-800 hover:opacity-90 transition">
+                <a href="{{ route('admin.media.show', $m) }}" class="block w-full h-full">
+                   <img src="{{ $m->url() }}" alt="{{ $m->original_name }}" class="h-full w-full object-cover"/>
+                </a>
               </div>
               <div class="p-2">
-                <div class="text-xs font-medium text-slate-700 dark:text-slate-200 truncate">{{ $m->original_name }}</div>
+                <div class="text-xs font-medium text-slate-700 dark:text-slate-200 truncate">
+                  <a href="{{ route('admin.media.show', $m) }}" class="hover:text-primary hover:underline">{{ $m->original_name }}</a>
+                </div>
                 <div class="text-[11px] text-slate-500 dark:text-slate-400 truncate">#{{ $m->id }} · {{ number_format($m->size/1024, 0) }} KB</div>
               </div>
 

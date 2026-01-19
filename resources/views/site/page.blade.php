@@ -13,7 +13,7 @@
     @if($page->featuredImage)
       <div class="max-w-5xl mx-auto px-4 sm:px-6 mb-12 sm:mb-20">
         <div class="aspect-[3/1] bg-slate-100 rounded-2xl overflow-hidden shadow-sm">
-          <img src="{{ $page->featuredImage->url() }}" alt="{{ $page->title }}" class="w-full h-full object-cover">
+          <img src="{{ $page->featuredImage->url() }}" alt="{{ $page->featuredImage->alt_text ?? $page->title }}" class="w-full h-full object-cover">
         </div>
       </div>
     @else

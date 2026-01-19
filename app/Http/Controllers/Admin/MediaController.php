@@ -36,6 +36,19 @@ class MediaController extends Controller
         $disk = 'public';
         $path = $file->store('uploads', $disk);
 
+        // Capture dimensions
+        $width = null;
+        $height = null;
+        try {
+             if (str_starts_with($file->getMimeType(), 'image/')) {
+                 $dims = getimagesize($file->getRealPath());
+                 if ($dims) {
+                     $width = $dims[0];
+                     $height = $dims[1];
+                 }
+             }
+        } catch (\Exception $e) {}
+
         Media::create([
             'disk' => $disk,
             'path' => $path,
@@ -43,13 +56,45 @@ class MediaController extends Controller
             'mime' => $file->getClientMimeType(),
             'size' => $file->getSize(),
             'uploaded_by' => Auth::id(),
+            'width' => $width,
+            'height' => $height,
         ]);
 
         return back()->with('toast', ['tone'=>'success','title'=>'Uploaded','message'=>'File uploaded.']);
     }
 
+    public function show(Media $media)
+    {
+        $media->loadCount(['posts', 'pages']);
+        return view('admin.media.show', compact('media'));
+    }
+
+    public function update(Request $request, Media $media)
+    {
+        $data = $request->validate([
+            'alt_text' => ['nullable', 'string', 'max:255'],
+            'caption' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $media->update($data);
+
+        return back()->with('toast', ['tone'=>'success','title'=>'Saved','message'=>'Metadata updated.']);
+    }
+
     public function destroy(Media $media)
     {
+        // Safety Check: Prevent delete if used
+        $inUsePost = \App\Models\Post::where('featured_image_id', $media->id)->exists();
+        $inUsePage = \App\Models\Page::where('featured_image_id', $media->id)->exists();
+
+        if ($inUsePost || $inUsePage) {
+            return back()->with('toast', [
+                'tone' => 'danger',
+                'title' => 'Cannot Delete',
+                'message' => 'This media is currently used by a Post or Page and cannot be deleted.'
+            ]);
+        }
+
         try { Storage::disk($media->disk)->delete($media->path); } catch (\Throwable $e) {}
         $media->delete();
 
