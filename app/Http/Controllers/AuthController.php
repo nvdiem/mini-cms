@@ -25,6 +25,17 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
+            
+            if (!Auth::user()->is_active) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                
+                return back()
+                    ->withInput($request->only('email', 'remember'))
+                    ->withErrors(['email' => 'Tài khoản đã bị vô hiệu hoá. Liên hệ Admin.']);
+            }
+
             return redirect()->intended('/admin/posts');
         }
 

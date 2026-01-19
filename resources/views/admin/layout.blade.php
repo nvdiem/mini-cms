@@ -156,11 +156,19 @@
         <span class="badge badge-soon">Soon</span>
       </a>
 
+      @if(auth()->user()->role === 'admin')
       <p class="px-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-6">System</p>
+      
+      <a class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors {{ request()->is('admin/users*') ? 'bg-primary/10 text-primary dark:bg-primary/15' : '' }}" href="{{ route('admin.users.index') }}">
+        <span class="material-icons-outlined mr-3 text-[20px] {{ request()->is('admin/users*') ? 'text-primary' : 'text-slate-400 group-hover:text-slate-500 dark:text-slate-500 dark:group-hover:text-slate-300' }}" aria-hidden="true">people_outline</span>
+        Users
+      </a>
+
       <a class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors {{ request()->is('admin/settings*') ? 'bg-primary/10 text-primary dark:bg-primary/15' : '' }}" href="{{ route('admin.settings.index') }}">
         <span class="material-icons-outlined mr-3 text-[20px] {{ request()->is('admin/settings*') ? 'text-primary' : 'text-slate-400 group-hover:text-slate-500 dark:text-slate-500 dark:group-hover:text-slate-300' }}" aria-hidden="true">settings</span>
         Settings
       </a>
+      @endif
     </nav>
   </aside>
 
@@ -189,6 +197,9 @@
           </div>
           <div class="text-sm text-slate-700 dark:text-slate-200 max-w-[220px] truncate" title="{{ auth()->user()->email ?? '' }}">
             {{ auth()->user()->email ?? '' }}
+            <span class="ml-1 text-[10px] uppercase font-bold px-1.5 py-0.5 rounded {{ auth()->user()->role === 'admin' ? 'bg-violet-100 text-violet-700' : 'bg-slate-100 text-slate-500' }}">
+              {{ auth()->user()->role === 'admin' ? 'ADM' : 'EDT' }}
+            </span>
           </div>
         </div>
 

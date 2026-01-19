@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\UserController;
 
 use App\Http\Controllers\SiteController;
 
@@ -54,9 +55,16 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function(){
     Route::post('leads/{lead}/status', [LeadController::class, 'updateStatus'])->name('leads.status');
     Route::post('leads/bulk', [LeadController::class, 'bulk'])->name('leads.bulk');
 
-    // Settings
-    Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
-    Route::post('settings', [SettingsController::class, 'update'])->name('settings.update');
+    // Admin Only
+    Route::middleware('admin')->group(function(){
+        // Settings
+        Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
+        Route::post('settings', [SettingsController::class, 'update'])->name('settings.update');
+
+        // Users
+        Route::resource('users', UserController::class)->except(['show']);
+        Route::post('users/{user}/toggle', [UserController::class, 'toggleActive'])->name('users.toggle');
+    });
 });
 
 // Site
