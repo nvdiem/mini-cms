@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Models\Page;
 
 class SiteController extends Controller
 {
@@ -22,10 +23,21 @@ class SiteController extends Controller
     {
         $post = Post::query()
             ->published()
-            ->with(['author','featuredImage','categories'])
+            ->with(['author','featuredImage','categories','tags'])
             ->where('slug', $slug)
             ->firstOrFail();
 
         return view('site.post', ['post' => $post, 'isPreview' => false, 'backUrl' => null]);
+    }
+
+    public function showPage(string $slug)
+    {
+        $page = Page::query()
+            ->published()
+            ->with(['author','featuredImage'])
+            ->where('slug', $slug)
+            ->firstOrFail();
+
+        return view('site.page', ['page' => $page, 'isPreview' => false, 'backUrl' => null]);
     }
 }

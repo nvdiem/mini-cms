@@ -116,9 +116,19 @@
         Posts
       </a>
 
+      <a class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors {{ request()->is('admin/pages*') ? 'bg-primary/10 text-primary dark:bg-primary/15' : '' }}" href="{{ route('admin.pages.index') }}">
+        <span class="material-icons-outlined mr-3 text-[20px] {{ request()->is('admin/pages*') ? 'text-primary' : 'text-slate-400 group-hover:text-slate-500 dark:text-slate-500 dark:group-hover:text-slate-300' }}" aria-hidden="true">description</span>
+        Pages
+      </a>
+
       <a class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors {{ request()->is('admin/categories*') ? 'bg-primary/10 text-primary dark:bg-primary/15' : '' }}" href="{{ route('admin.categories.index') }}">
         <span class="material-icons-outlined mr-3 text-[20px] {{ request()->is('admin/categories*') ? 'text-primary' : 'text-slate-400 group-hover:text-slate-500 dark:text-slate-500 dark:group-hover:text-slate-300' }}" aria-hidden="true">label</span>
         Categories
+      </a>
+
+      <a class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors {{ request()->is('admin/tags*') ? 'bg-primary/10 text-primary dark:bg-primary/15' : '' }}" href="{{ route('admin.tags.index') }}">
+        <span class="material-icons-outlined mr-3 text-[20px] {{ request()->is('admin/tags*') ? 'text-primary' : 'text-slate-400 group-hover:text-slate-500 dark:text-slate-500 dark:group-hover:text-slate-300' }}" aria-hidden="true">local_offer</span>
+        Tags
       </a>
 
       <a class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors {{ request()->is('admin/media*') ? 'bg-primary/10 text-primary dark:bg-primary/15' : '' }}" href="{{ route('admin.media.index') }}">
@@ -126,12 +136,9 @@
         Media Library
       </a>
 
-      <a class="group flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg text-text-muted hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" href="#" onclick="return false;">
-        <span class="flex items-center">
-          <span class="material-icons-outlined mr-3 text-[20px] text-slate-400 dark:text-slate-500" aria-hidden="true">description</span>
-          Pages
-        </span>
-        <span class="badge badge-soon">Soon</span>
+      <a class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors {{ request()->is('admin/review*') ? 'bg-primary/10 text-primary dark:bg-primary/15' : '' }}" href="{{ route('admin.review.index') }}">
+        <span class="material-icons-outlined mr-3 text-[20px] {{ request()->is('admin/review*') ? 'text-primary' : 'text-slate-400 group-hover:text-slate-500 dark:text-slate-500 dark:group-hover:text-slate-300' }}" aria-hidden="true">rate_review</span>
+        Review Queue
       </a>
 
       <p class="px-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-6">Leads</p>

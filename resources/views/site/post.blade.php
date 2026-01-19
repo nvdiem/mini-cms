@@ -27,6 +27,17 @@
         </div>
       @endif
 
+      @if(($post->tags ?? collect())->count())
+        <div class="mt-3 flex flex-wrap gap-2">
+          @foreach($post->tags as $tag)
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
+              <span class="material-icons-outlined text-[14px] mr-0.5" aria-hidden="true">local_offer</span>
+              {{ $tag->name }}
+            </span>
+          @endforeach
+        </div>
+      @endif
+
       @if($post->excerpt)
         <p class="mt-5 text-slate-700">{{ $post->excerpt }}</p>
       @endif

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Post;
 use App\Models\Category;
 use App\Models\Media;
+use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
@@ -17,9 +18,10 @@ class PostController extends Controller
         $q = trim((string) $request->query('q', ''));
         $status = $request->query('status', '');
         $trash = $request->query('trash', '');
+        $tagSlug = $request->query('tag', '');
 
         $query = Post::query()
-            ->with(['author','categories','featuredImage'])
+            ->with(['author','categories','featuredImage','tags'])
             ->withCount('categories');
 
         if ($trash === '1') {
@@ -37,13 +39,23 @@ class PostController extends Controller
             $query->where('status', $status);
         }
 
+        if ($tagSlug !== '') {
+            $query->whereHas('tags', function($q) use ($tagSlug) {
+                $q->where('slug', $tagSlug);
+            });
+        }
+
         $posts = $query->orderByDesc('updated_at')->paginate(10)->withQueryString();
+
+        $tags = Tag::orderBy('name')->get();
 
         return view('admin.posts.index', [
             'posts' => $posts,
             'q' => $q,
             'status' => $status,
             'trash' => $trash,
+            'tagSlug' => $tagSlug,
+            'tags' => $tags,
         ]);
     }
 
@@ -51,9 +63,10 @@ class PostController extends Controller
     {
         $post = new Post(['status' => 'draft']);
         $categories = Category::orderBy('name')->get();
+        $tags = Tag::orderBy('name')->get();
         $media = Media::orderByDesc('id')->limit(50)->get();
 
-        return view('admin.posts.create', compact('post','categories','media'));
+        return view('admin.posts.create', compact('post','categories','tags','media'));
     }
 
     public function store(Request $request)
@@ -72,6 +85,7 @@ class PostController extends Controller
         $post->save();
 
         $post->categories()->sync($data['category_ids'] ?? []);
+        $post->tags()->sync($data['tag_ids'] ?? []);
 
         return redirect()
             ->route('admin.posts.edit', $post)
@@ -80,11 +94,12 @@ class PostController extends Controller
 
     public function edit(Post $post)
     {
-        $post->load(['categories','featuredImage']);
+        $post->load(['categories','featuredImage','tags']);
         $categories = Category::orderBy('name')->get();
+        $tags = Tag::orderBy('name')->get();
         $media = Media::orderByDesc('id')->limit(50)->get();
 
-        return view('admin.posts.edit', compact('post','categories','media'));
+        return view('admin.posts.edit', compact('post','categories','tags','media'));
     }
 
     public function update(Request $request, Post $post)
@@ -101,13 +116,14 @@ class PostController extends Controller
         $post->save();
 
         $post->categories()->sync($data['category_ids'] ?? []);
+        $post->tags()->sync($data['tag_ids'] ?? []);
 
         return back()->with('toast', ['tone' => 'success', 'title' => 'Saved', 'message' => 'Changes saved.']);
     }
 
     public function preview(Post $post)
     {
-        $post->load(['author','categories','featuredImage']);
+        $post->load(['author','categories','featuredImage','tags']);
         return view('site.post', [
             'post' => $post,
             'isPreview' => true,
@@ -172,6 +188,8 @@ class PostController extends Controller
             'published_at' => ['nullable', 'date'],
             'category_ids' => ['nullable', 'array'],
             'category_ids.*' => ['integer'],
+            'tag_ids' => ['nullable', 'array'],
+            'tag_ids.*' => ['integer'],
             'featured_image_id' => ['nullable', 'integer'],
         ]);
     }

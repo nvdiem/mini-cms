@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 
-class Post extends Model
+class Page extends Model
 {
     use SoftDeletes;
 
@@ -31,18 +31,8 @@ class Post extends Model
         return $this->belongsTo(User::class, 'author_id');
     }
 
-    public function categories()
-    {
-        return $this->belongsToMany(Category::class);
-    }
-
     public function featuredImage()
     {
         return $this->belongsTo(Media::class, 'featured_image_id');
-    }
-
-    public function tags()
-    {
-        return $this->belongsToMany(Tag::class);
     }
 }
