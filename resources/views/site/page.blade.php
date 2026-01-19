@@ -1,38 +1,41 @@
-<x-site.layout :title="($page->title ?? 'Page') . ' · PointOne'" :isPreview="($isPreview ?? false)" :backUrl="($backUrl ?? null)">
-  <article class="rounded-2xl border border-slate-200 bg-white overflow-hidden">
+<x-site.layout :title="$page->meta_title ?? $page->title" :meta_description="$page->meta_description ?? $page->excerpt" :meta_keywords="$page->meta_keywords">
+  
+  <article class="bg-white min-h-[60vh]">
+    <header class="max-w-3xl mx-auto px-4 sm:px-6 pt-16 pb-12 text-center">
+      <h1 class="text-3xl sm:text-5xl font-bold text-slate-900 tracking-tight leading-tight">
+        {{ $page->title }}
+      </h1>
+      @if($page->excerpt)
+        <p class="mt-4 text-xl text-slate-500 leading-relaxed font-light">{{ $page->excerpt }}</p>
+      @endif
+    </header>
+
     @if($page->featuredImage)
-      <img src="{{ $page->featuredImage->url() }}" alt="" class="h-56 w-full object-cover"/>
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 mb-12 sm:mb-20">
+        <div class="aspect-[3/1] bg-slate-100 rounded-2xl overflow-hidden shadow-sm">
+          <img src="{{ $page->featuredImage->url() }}" alt="{{ $page->title }}" class="w-full h-full object-cover">
+        </div>
+      </div>
+    @else
+      <div class="border-b border-slate-100 mb-12"></div>
     @endif
 
-    <div class="p-6 sm:p-8">
-      <div class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
-        <span>{{ optional($page->published_at)->format('M j, Y') ?? $page->updated_at->format('M j, Y') }}</span>
-        <span class="text-slate-300">•</span>
-        <span>{{ $page->author?->name ?? '—' }}</span>
-
-        @if(!empty($isPreview))
-          <span class="text-slate-300">•</span>
-          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">Preview</span>
-          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">Status: {{ ucfirst($page->status) }}</span>
-        @endif
-      </div>
-
-      <h1 class="mt-3 text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900">{{ $page->title }}</h1>
-
-      @if($page->excerpt)
-        <p class="mt-5 text-slate-700">{{ $page->excerpt }}</p>
-      @endif
-
-      <div class="prose prose-slate max-w-none mt-6">
-        {!! nl2br(e($page->content ?? '')) !!}
-      </div>
-
-      <div class="mt-8 pt-6 border-t border-slate-200 flex items-center justify-between">
-        <a href="{{ route('site.home') }}" class="text-primary font-medium hover:underline">← Back to home</a>
-        @auth
-          <a href="{{ route('admin.pages.edit', $page) }}" class="text-slate-600 hover:underline">Edit in admin</a>
-        @endauth
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 pb-20">
+      <div class="prose prose-slate prose-lg max-w-none 
+           prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-slate-900
+           prose-p:text-slate-600 prose-p:leading-relaxed
+           prose-a:text-primary prose-a:font-medium hover:prose-a:underline">
+        {!! $page->content !!}
       </div>
     </div>
   </article>
+
+  <!-- Optional Bottom CTA for Pages -->
+  <div class="bg-slate-50 border-t border-slate-200 py-16">
+    <div class="max-w-3xl mx-auto px-4 text-center">
+      <h2 class="text-2xl font-bold text-slate-900 mb-4">Have questions?</h2>
+      <p class="text-slate-600 mb-8">Whether you want to learn more about our process or just say hello, we're here.</p>
+      <a href="{{ route('contact.index') }}" class="btn-primary px-8 py-3 rounded-lg shadow-sm">Contact Us</a>
+    </div>
+  </div>
 </x-site.layout>

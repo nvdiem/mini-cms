@@ -11,7 +11,8 @@ class Post extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'title','slug','excerpt','content','status','published_at','author_id','featured_image_id'
+        'title','slug','excerpt','content','status','published_at','author_id','featured_image_id',
+        'meta_title', 'meta_description', 'meta_keywords'
     ];
 
     protected $casts = [

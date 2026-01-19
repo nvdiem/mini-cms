@@ -13,6 +13,7 @@ $outPath = Join-Path $projectRoot $outName
 # Files/folders to include
 $include = @(
   "app",
+  "docs",
   "resources\views",
   "routes\web.php",
   "database\migrations",

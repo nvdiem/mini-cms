@@ -82,6 +82,9 @@ class PostController extends Controller
         $post->published_at = $data['published_at'] ?? null;
         $post->author_id = Auth::id();
         $post->featured_image_id = $data['featured_image_id'] ?? null;
+        $post->meta_title = $data['meta_title'] ?: $data['title'];
+        $post->meta_description = $data['meta_description'] ?: ($data['excerpt'] ?: Str::limit(strip_tags($data['content'] ?? ''), 160));
+        $post->meta_keywords = $data['meta_keywords'] ?? null;
         $post->save();
 
         $post->categories()->sync($data['category_ids'] ?? []);
@@ -113,6 +116,9 @@ class PostController extends Controller
         $post->status = $data['status'];
         $post->published_at = $data['published_at'] ?? null;
         $post->featured_image_id = $data['featured_image_id'] ?? null;
+        $post->meta_title = $data['meta_title'] ?: $data['title'];
+        $post->meta_description = $data['meta_description'] ?: ($data['excerpt'] ?: Str::limit(strip_tags($data['content'] ?? ''), 160));
+        $post->meta_keywords = $data['meta_keywords'] ?? null;
         $post->save();
 
         $post->categories()->sync($data['category_ids'] ?? []);
@@ -191,6 +197,9 @@ class PostController extends Controller
             'tag_ids' => ['nullable', 'array'],
             'tag_ids.*' => ['integer'],
             'featured_image_id' => ['nullable', 'integer'],
+            'meta_title' => ['nullable', 'string', 'max:255'],
+            'meta_description' => ['nullable', 'string'],
+            'meta_keywords' => ['nullable', 'string', 'max:255'],
         ]);
     }
 

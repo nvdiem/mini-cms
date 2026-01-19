@@ -30,126 +30,107 @@ Demo seed user:
 - Admin layout uses a calm token-based theme and Tailwind utilities.
 - Sidebar menus:
   - **Posts** (active)
+  - **Pages** (active)
   - **Categories** (active)
+  - **Tags** (active)
   - **Media Library** (active)
-  - **Pages / Leads / Analytics** (placeholders labeled “Soon”)
-  - **Settings** (placeholder)
+  - **Review Queue** (active)
+  - **Leads** (active)
+  - **Settings** (active)
 - Header:
   - **Visit site** link to frontend homepage
   - Logged-in user **email shown** with initial avatar
   - Logout button
-  - Dark mode toggle (optional test toggle)
 
 ### 1.3 Posts module (CRUD + workflow)
-- List view:
-  - search `q`
-  - filter by `status` (draft/review/published)
-  - trash view toggle (`trash=1`)
-  - desktop table view + mobile card view
-- Post editor:
-  - title, slug, excerpt, content
-  - status (draft/review/published)
-  - published_at (optional)
-  - categories sync (many-to-many)
-  - featured_image_id selection from media
-- Actions:
-  - Soft delete (trash) + restore
-  - Bulk actions (move to trash / restore)
-  - Confirm modal before trash
-  - Toast notifications and **Undo** support after trash
+- List view: search, filters (status, tag), trash toggle, mobile card view
+- Editor: title, slug, excerpt, content, status, published_at, featured_image
+- **SEO Settings**: meta title, meta description, keywords
+- **Categories & Tags**: Many-to-many sync
 
-### 1.4 Categories module
-- CRUD lite: index/store/update/destroy
-- Used in Post editor (checkbox list)
+### 1.4 Pages module
+- Full CRUD, same structure as Posts but standalone
+- **SEO Settings**: meta title, meta description, keywords
+- Frontend route: `/p/{slug}`
 
-### 1.5 Media module
-- Upload images (stored under `storage/app/public`)
+### 1.5 Taxonomy modules
+- **Categories**: CRUD lite
+- **Tags**: CRUD lite, used in Post editor and Frontend
+
+### 1.6 Review Queue module
+- Dedicated page at `/admin/review`
+- Quick Publish button for posts in "Review" status
+
+### 1.7 Media module
+- Upload images to `storage/app/public`
 - Media library index (grid/list)
-- Delete
-- Requirement: `php artisan storage:link`
 
-### 1.6 Frontend module (public site)
-- `GET /` homepage: lists **published** posts only
-- `GET /posts/{slug}`: post detail for **published** posts only
-- Published rule:
-  - `status = published`
-  - `published_at` is NULL OR `<= now()`
-- Admin preview:
-  - `GET /admin/posts/{post}/preview` shows any post (draft/review/published) behind auth
-  - Shows preview banner + “Back to editor”
+### 1.8 Settings Module
+- Admin page at `/admin/settings` (Tabbed interface)
+- Config: Site Name, Tagline, Logo, Default Post Status, Posts Per Page, SEO Defaults
+- Cached `setting($key)` helper
+
+### 1.9 Leads / Contact Module
+- Frontend: `/contact` form with validation and SaaS-style design
+- Backend: `/admin/leads` list view with Status workflow (New/Handled/Spam)
+
+### 1.10 Frontend Redesign (SaaS / Minimal Japanese) ✨ NEW
+- **Aesthetic**: Minimalist, whitespace-driven, Slate-50 palette, Inter font
+- **Layout**: Clean top nav, progress bar, sticky header
+- **Home**: Hero section, Featured Post split-card, Grid layout, CTA
+- **Post**: Tailwind Typography (prose), Meta header, Related Posts, Prev/Next Navigation
+- **Responsive**: Fully optimized for mobile
+
+### 1.11 Demo Content ✨ NEW
+- `DemoContentSeeder`: Generates realistic posts (Strategy, Design, Engineering), pages, and leads.
+- **Images**: Supports local demo images in `public/demo/posts/`
 
 ---
 
 ## 2) Current Routes (web.php)
-Frontend:
+
+### Frontend:
 - `GET /` → `site.home`
 - `GET /posts/{slug}` → `site.posts.show`
+- `GET /p/{slug}` → `site.pages.show`
+- `GET /contact` → `contact.index`
+- `POST /contact` → `contact.store`
 
-Auth:
-- `GET /login` → login form
-- `POST /login` → login submit
-- `POST /logout` → logout (auth protected)
+### Auth:
+- `GET /login`, `POST /login`, `POST /logout`
 
-Admin (auth middleware):
-- `GET /admin` → redirect to posts
-- `resource /admin/posts`
-- `POST /admin/posts/{id}/restore`
-- `POST /admin/posts/bulk`
-- `GET /admin/posts/{post}/preview`
-- `resource /admin/categories` (index/store/update/destroy)
-- `resource /admin/media` (index/store/destroy)
+### Admin (auth middleware):
+- Resources: `posts`, `pages`, `categories`, `tags`, `media`
+- **Review**: `GET /admin/review`, `POST /publish`
+- **Leads**: `GET /admin/leads`, `POST /status`, `POST /bulk`
+- **Settings**: `GET /admin/settings`, `POST /update`
 
 ---
 
-## 3) Code/Folder Notes (important for continuing)
-- `x-admin.layout` is implemented as an anonymous component under:
-  - `resources/views/components/admin/layout.blade.php`
-- `x-site.layout` is implemented as an anonymous component under:
-  - `resources/views/components/site/layout.blade.php`
-- Frontend views live under:
-  - `resources/views/site/`
-- Admin views live under:
-  - `resources/views/admin/`
-- Models include `Post::scopePublished()` for frontend filtering.
+## 3) Database Schema
+
+### Tables:
+- `users`, `posts`, `pages`, `categories`, `tags`, `media`
+- `settings` (key, value)
+- `leads` (name, email, phone, message, status, source)
+- Pivot: `category_post`, `post_tag`
 
 ---
 
-## 4) Next Requested Features (Not Implemented Yet)
-You requested the next phase:
-1) **Pages module**
-   - Admin CRUD for static pages (About/Policy/etc.)
-   - Frontend route: `/p/{slug}`
-2) **Review Queue + quick publish**
-   - Admin page listing `status=review`
-   - One-click publish action (sets status to published + optionally published_at = now)
-3) **Tags module**
-   - Tags CRUD
-   - Assign tags to posts (many-to-many)
-   - Filter posts list by tag
-   - Show tag chips on frontend detail
+## 4) Code/Folder Notes
+
+### Views:
+- Frontend: `resources/views/site/` (Modern SaaS design)
+- Admin: `resources/views/admin/` (Consolidated layout)
+- Layouts: `components/site/layout.blade.php` (Frontend master)
+
+### Seeders:
+- `DemoContentSeeder`: Main seeder for realistic data
+- `SettingsSeeder`: Default configuration
 
 ---
 
-## 5) How to Create a “Patch Zip” for AI Analysis
-Include:
-- `app/`
-- `resources/views/`
-- `routes/web.php`
-- `database/migrations/`
-- `database/seeders/`
-- `composer.json`, `composer.lock`
-- `.env.example`
-- (optional) `config/`
-
-Exclude:
-- `vendor/`
-- `node_modules/`
-- `storage/logs/`, `storage/framework/`
-- `.env`
-
----
-
-# Handoff Prompt for Another AI (copy/paste)
+## 5) Handoff Prompt for Another AI
 
 **PROMPT START**
 
@@ -157,35 +138,26 @@ You are continuing a Laravel mini CMS project. Constraints:
 - Laravel + MySQL (Laragon Windows)
 - Blade only, Tailwind via CDN (NO npm, NO Vite)
 - Custom auth (no Breeze)
-- UI must remain consistent with `mini_cms_templates_v2`: calm color tokens, confirm modal, toast+undo, responsive (desktop table + mobile card view).
-- Admin layout is an anonymous Blade component at `resources/views/components/admin/layout.blade.php`.
-- Site layout is an anonymous Blade component at `resources/views/components/site/layout.blade.php`.
+- UI: "Minimal Japanese / SaaS" aesthetic for Frontend, "Calm Admin" for Backend.
 
-Current implemented modules:
-- Admin: Posts (CRUD, soft delete+restore, bulk actions, confirm modal, toast+undo, category sync, featured image), Categories (CRUD lite), Media (upload/library/delete), Admin Preview (`/admin/posts/{post}/preview`).
-- Frontend: Homepage `/` lists published posts only (status=published and published_at<=now or null), Post detail `/posts/{slug}` for published only.
-- Admin header shows logged in user email and has “Visit site” link.
+**Current implemented modules:**
+- **Core**: Posts & Pages (CRUD, SEO, Soft Deletes).
+- **Taxonomies**: Categories & Tags.
+- **Media**: Library & Uploads.
+- **Workflow**: Review Queue.
+- **Settings**: Site-wide config via `setting()` helper.
+- **Leads**: Contact form & Admin management.
+- **Frontend**: Full redesign complete. Minimalist hero, grid layout, typography-focused post view, related posts, mobile responsive.
+- **Demo Data**: `DemoContentSeeder` generates realistic content.
 
-TASK (next phase):
-Implement **Pages + Review Queue (quick publish) + Tags**:
-1) Pages module:
-   - DB: pages table (title, slug, excerpt, content, status, published_at, author_id, featured_image_id, timestamps, soft deletes if needed)
-   - Admin: `/admin/pages` list + create/edit; re-use the same UI patterns as Posts.
-   - Frontend: `/p/{slug}` shows published pages only.
-2) Review Queue:
-   - Admin page: `/admin/review` (or `/admin/posts?status=review` with a dedicated UI) listing posts in review.
-   - Quick publish action: POST endpoint that sets status=published and published_at=now if empty.
-   - Show toast on success.
-3) Tags module:
-   - DB: tags table + pivot table post_tag
-   - Admin: tags CRUD page
-   - Post editor: assign tags (checkbox list or simple comma input)
-   - Post list: filter by tag
-   - Frontend: show tag chips on post detail.
+**Database**:
+- Tables: users, posts, pages, categories, tags, media, settings, leads.
 
-Output:
-- Provide patch zip changes (files to copy) and exact routes/web.php additions.
-- No npm. Keep UI consistent with existing tokens/components.
-- Use confirm modal + toast pattern for destructive actions.
+**NEXT TASK SUGGESTIONS:**
+- User management (CRUD for admin users)
+- Analytics dashboard (simple stats chart)
+- Post scheduling (publish at specific time via scheduler)
+- Comment system
+- Newsletter subscription (integrate with external provider or local)
 
 **PROMPT END**

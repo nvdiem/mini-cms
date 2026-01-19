@@ -66,6 +66,9 @@ class PageController extends Controller
         $page->published_at = $data['published_at'] ?? null;
         $page->author_id = Auth::id();
         $page->featured_image_id = $data['featured_image_id'] ?? null;
+        $page->meta_title = $data['meta_title'] ?: $data['title'];
+        $page->meta_description = $data['meta_description'] ?: ($data['excerpt'] ?: Str::limit(strip_tags($data['content'] ?? ''), 160));
+        $page->meta_keywords = $data['meta_keywords'] ?? null;
         $page->save();
 
         return redirect()
@@ -92,6 +95,9 @@ class PageController extends Controller
         $page->status = $data['status'];
         $page->published_at = $data['published_at'] ?? null;
         $page->featured_image_id = $data['featured_image_id'] ?? null;
+        $page->meta_title = $data['meta_title'] ?: $data['title'];
+        $page->meta_description = $data['meta_description'] ?: ($data['excerpt'] ?: Str::limit(strip_tags($data['content'] ?? ''), 160));
+        $page->meta_keywords = $data['meta_keywords'] ?? null;
         $page->save();
 
         return back()->with('toast', ['tone' => 'success', 'title' => 'Saved', 'message' => 'Changes saved.']);
@@ -163,6 +169,9 @@ class PageController extends Controller
             'status' => ['required', 'in:draft,review,published'],
             'published_at' => ['nullable', 'date'],
             'featured_image_id' => ['nullable', 'integer'],
+            'meta_title' => ['nullable', 'string', 'max:255'],
+            'meta_description' => ['nullable', 'string'],
+            'meta_keywords' => ['nullable', 'string', 'max:255'],
         ]);
     }
 
