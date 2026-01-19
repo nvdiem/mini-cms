@@ -1,0 +1,197 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\Post;
+use App\Models\Category;
+use App\Models\Media;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
+
+class PostController extends Controller
+{
+    public function index(Request $request)
+    {
+        $q = trim((string) $request->query('q', ''));
+        $status = $request->query('status', '');
+        $trash = $request->query('trash', '');
+
+        $query = Post::query()
+            ->with(['author','categories','featuredImage'])
+            ->withCount('categories');
+
+        if ($trash === '1') {
+            $query->onlyTrashed();
+        }
+
+        if ($q !== '') {
+            $query->where(function($sub) use ($q) {
+                $sub->where('title', 'like', '%' . $q . '%')
+                    ->orWhere('slug', 'like', '%' . $q . '%');
+            });
+        }
+
+        if (in_array($status, ['draft','review','published'], true)) {
+            $query->where('status', $status);
+        }
+
+        $posts = $query->orderByDesc('updated_at')->paginate(10)->withQueryString();
+
+        return view('admin.posts.index', [
+            'posts' => $posts,
+            'q' => $q,
+            'status' => $status,
+            'trash' => $trash,
+        ]);
+    }
+
+    public function create()
+    {
+        $post = new Post(['status' => 'draft']);
+        $categories = Category::orderBy('name')->get();
+        $media = Media::orderByDesc('id')->limit(50)->get();
+
+        return view('admin.posts.create', compact('post','categories','media'));
+    }
+
+    public function store(Request $request)
+    {
+        $data = $this->validatePost($request);
+
+        $post = new Post();
+        $post->title = $data['title'];
+        $post->slug = $this->uniqueSlug($data['slug'] ?: Str::slug($data['title']));
+        $post->excerpt = $data['excerpt'] ?? null;
+        $post->content = $data['content'] ?? '';
+        $post->status = $data['status'];
+        $post->published_at = $data['published_at'] ?? null;
+        $post->author_id = Auth::id();
+        $post->featured_image_id = $data['featured_image_id'] ?? null;
+        $post->save();
+
+        $post->categories()->sync($data['category_ids'] ?? []);
+
+        return redirect()
+            ->route('admin.posts.edit', $post)
+            ->with('toast', ['tone' => 'success', 'title' => 'Saved', 'message' => 'Post created successfully.']);
+    }
+
+    public function edit(Post $post)
+    {
+        $post->load(['categories','featuredImage']);
+        $categories = Category::orderBy('name')->get();
+        $media = Media::orderByDesc('id')->limit(50)->get();
+
+        return view('admin.posts.edit', compact('post','categories','media'));
+    }
+
+    public function update(Request $request, Post $post)
+    {
+        $data = $this->validatePost($request, $post->id);
+
+        $post->title = $data['title'];
+        $post->slug = $this->uniqueSlug($data['slug'] ?: Str::slug($data['title']), $post->id);
+        $post->excerpt = $data['excerpt'] ?? null;
+        $post->content = $data['content'] ?? '';
+        $post->status = $data['status'];
+        $post->published_at = $data['published_at'] ?? null;
+        $post->featured_image_id = $data['featured_image_id'] ?? null;
+        $post->save();
+
+        $post->categories()->sync($data['category_ids'] ?? []);
+
+        return back()->with('toast', ['tone' => 'success', 'title' => 'Saved', 'message' => 'Changes saved.']);
+    }
+
+    public function preview(Post $post)
+    {
+        $post->load(['author','categories','featuredImage']);
+        return view('site.post', [
+            'post' => $post,
+            'isPreview' => true,
+            'backUrl' => route('admin.posts.edit', $post),
+        ]);
+    }
+
+    public function destroy(Post $post)
+    {
+        $post->delete();
+
+        return redirect()
+            ->route('admin.posts.index')
+            ->with('toast', [
+                'tone' => 'danger',
+                'title' => 'Moved to trash',
+                'message' => 'Post was moved to trash.',
+                'undo' => route('admin.posts.restore', $post->id),
+            ]);
+    }
+
+    public function restore($id)
+    {
+        $post = Post::withTrashed()->findOrFail($id);
+        $post->restore();
+
+        return redirect()
+            ->route('admin.posts.index')
+            ->with('toast', ['tone' => 'success', 'title' => 'Restored', 'message' => 'Post restored.']);
+    }
+
+    public function bulk(Request $request)
+    {
+        $action = $request->input('action');
+        $ids = $request->input('ids', []);
+
+        if (!is_array($ids) || count($ids) === 0) {
+            return back()->with('toast', ['tone' => 'danger', 'title' => 'No selection', 'message' => 'Select at least one item.']);
+        }
+
+        if ($action === 'delete') {
+            Post::whereIn('id', $ids)->delete();
+            return back()->with('toast', ['tone' => 'danger', 'title' => 'Moved to trash', 'message' => 'Selected posts moved to trash.']);
+        }
+
+        if ($action === 'restore') {
+            Post::withTrashed()->whereIn('id', $ids)->restore();
+            return back()->with('toast', ['tone' => 'success', 'title' => 'Restored', 'message' => 'Selected posts restored.']);
+        }
+
+        return back()->with('toast', ['tone' => 'danger', 'title' => 'Invalid action', 'message' => 'Please choose a valid bulk action.']);
+    }
+
+    private function validatePost(Request $request, ?int $ignoreId = null): array
+    {
+        return $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'slug' => ['nullable', 'string', 'max:255'],
+            'excerpt' => ['nullable', 'string'],
+            'content' => ['nullable', 'string'],
+            'status' => ['required', 'in:draft,review,published'],
+            'published_at' => ['nullable', 'date'],
+            'category_ids' => ['nullable', 'array'],
+            'category_ids.*' => ['integer'],
+            'featured_image_id' => ['nullable', 'integer'],
+        ]);
+    }
+
+    private function uniqueSlug(string $slug, ?int $ignoreId = null): string
+    {
+        $base = $slug ?: Str::random(8);
+        $candidate = $base;
+        $i = 2;
+
+        while (
+            Post::withTrashed()
+                ->where('slug', $candidate)
+                ->when($ignoreId, fn($q) => $q->where('id', '!=', $ignoreId))
+                ->exists()
+        ) {
+            $candidate = $base . '-' . $i;
+            $i++;
+        }
+
+        return $candidate;
+    }
+}
