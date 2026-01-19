@@ -22,9 +22,14 @@ Route::get('login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('login', [AuthController::class, 'login']);
 Route::post('logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
+// SEO Routes
+Route::get('/sitemap.xml', [App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
+Route::get('/robots.txt', [App\Http\Controllers\SitemapController::class, 'robots'])->name('robots');
+
 // Admin
 Route::prefix('admin')->name('admin.')->middleware('auth')->group(function(){
-    Route::get('/', function(){ return redirect()->route('admin.posts.index'); })->name('dashboard');
+    // Dashboard
+    Route::get('/', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
 
     // Posts
     Route::resource('posts', PostController::class);

@@ -128,16 +128,5 @@
       @error('featured_image_id') <div class="text-xs text-red-600 mt-2">{{ $message }}</div> @enderror
     </div>
 
-    @if($isEdit)
-      <div class="card p-6">
-        <div class="text-sm font-semibold text-text-strong dark:text-white">Danger zone</div>
-        <div class="mt-4">
-          <form method="POST" action="{{ route('admin.pages.destroy', $page) }}">
-            @csrf @method('DELETE')
-            <button class="btn-danger" type="submit">Move to trash</button>
-          </form>
-        </div>
-      </div>
-    @endif
   </div>
 </div>

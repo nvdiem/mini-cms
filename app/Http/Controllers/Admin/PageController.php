@@ -70,6 +70,7 @@ class PageController extends Controller
         $page->meta_description = $data['meta_description'] ?: ($data['excerpt'] ?: Str::limit(strip_tags($data['content'] ?? ''), 160));
         $page->meta_keywords = $data['meta_keywords'] ?? null;
         $page->save();
+        activity_log('created', $page, "Created page '{$page->title}'");
 
         return redirect()
             ->route('admin.pages.edit', $page)
@@ -99,6 +100,7 @@ class PageController extends Controller
         $page->meta_description = $data['meta_description'] ?: ($data['excerpt'] ?: Str::limit(strip_tags($data['content'] ?? ''), 160));
         $page->meta_keywords = $data['meta_keywords'] ?? null;
         $page->save();
+        activity_log('updated', $page, "Updated page '{$page->title}'");
 
         return back()->with('toast', ['tone' => 'success', 'title' => 'Saved', 'message' => 'Changes saved.']);
     }
@@ -116,6 +118,7 @@ class PageController extends Controller
     public function destroy(Page $page)
     {
         $page->delete();
+        activity_log('trashed', $page, "Moved page '{$page->title}' to trash");
 
         return redirect()
             ->route('admin.pages.index')
@@ -131,6 +134,7 @@ class PageController extends Controller
     {
         $page = Page::withTrashed()->findOrFail($id);
         $page->restore();
+        activity_log('restored', $page, "Restored page '{$page->title}'");
 
         return redirect()
             ->route('admin.pages.index')
@@ -148,11 +152,13 @@ class PageController extends Controller
 
         if ($action === 'delete') {
             Page::whereIn('id', $ids)->delete();
+            activity_log('bulk_trash', null, "Moved " . count($ids) . " pages to trash");
             return back()->with('toast', ['tone' => 'danger', 'title' => 'Moved to trash', 'message' => 'Selected pages moved to trash.']);
         }
 
         if ($action === 'restore') {
             Page::withTrashed()->whereIn('id', $ids)->restore();
+            activity_log('bulk_restore', null, "Restored " . count($ids) . " pages");
             return back()->with('toast', ['tone' => 'success', 'title' => 'Restored', 'message' => 'Selected pages restored.']);
         }
 

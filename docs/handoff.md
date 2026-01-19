@@ -16,74 +16,51 @@ This document summarizes the current state of the project and provides a handoff
 
 ## 1) Implemented Features (Done)
 
-### 1.1 Authentication (custom)
-- `/login` (GET) shows login form
-- `/login` (POST) authenticates using session
-- `/logout` (POST) logs out
-- `auth` middleware protects `/admin/*`
+### 1.1 Authentication & Roles (Sprint 2) ✨
+- **Roles**: `admin` (Full access), `editor` (Content only).
+- **Status**: `is_active` check. Disabled users cannot login.
+- **Middleware**: `admin` middleware protects sensitive routes.
+- **Demo Users**:
+  - `admin@local.test` / `123456`
+  - `editor@local.test` / `123456`
 
-Demo seed user:
-- `admin@local.test`
-- `123456`
+### 1.2 User Management Module (Sprint 2) ✨
+- Admin-only CRUD: `/admin/users`
+- Security: Admins cannot disable themselves.
+- UI: Badge indicators for Roles/Status.
 
-### 1.2 Admin UI
-- Admin layout uses a calm token-based theme and Tailwind utilities.
-- Sidebar menus:
-  - **Posts** (active)
-  - **Pages** (active)
-  - **Categories** (active)
-  - **Tags** (active)
-  - **Media Library** (active)
-  - **Review Queue** (active)
-  - **Leads** (active)
-  - **Settings** (active)
-- Header:
-  - **Visit site** link to frontend homepage
-  - Logged-in user **email shown** with initial avatar
-  - Logout button
+### 1.3 Analytics & Dashboard (Sprint 3) ✨
+- **Dashboard UI**: `/admin` now shows a comprehensive SaaS-style dashboard.
+- **Charts**: Chart.js integration showing Daily Views vs Leads (Last 7/14/30 days).
+- **KPI Cards**: Total Views, New Leads, Content Stats (Published, Draft, Review).
+- **Activity Feed**: Timeline of recent system actions with clickable links.
+- **Top Content**: Table showing best-performing posts by views.
 
-### 1.3 Posts module (CRUD + workflow)
-- List view: search, filters (status, tag), trash toggle, mobile card view
-- Editor: title, slug, excerpt, content, status, published_at, featured_image
-- **SEO Settings**: meta title, meta description, keywords
-- **Categories & Tags**: Many-to-many sync
+### 1.4 refined Activity Logging System (Sprint 3) ✨
+- **Robustness**: `activity_logs` table with `meta` (JSON) support for rich context.
+- **Helper**: Global `activity_log()` function auto-detects user, subject, and generates links.
+- **Integration**:
+  - **Posts/Pages**: Created, Updated, Trashed, Restored, Bulk actions, Quick Publish.
+  - **Leads**: Created (Guest), Status Changed.
+  - **Settings**: Configuration updates.
 
-### 1.4 Pages module
-- Full CRUD, same structure as Posts but standalone
-- **SEO Settings**: meta title, meta description, keywords
-- Frontend route: `/p/{slug}`
+### 1.5 Admin UI
+- **Sidebar**: Dashboard link added. Role-based visibility.
+- **Header**: Shows User Badge (ADM/EDT).
+- **Layout**: Calm theme, responsive sidebar.
 
-### 1.5 Taxonomy modules
-- **Categories**: CRUD lite
-- **Tags**: CRUD lite, used in Post editor and Frontend
+### 1.6 Core Modules
+- **Posts**: CRUD, SEO, Tags/Cats, Review Workflow, **View Tracking**.
+- **Pages**: CRUD, SEO, **Activity Logging**.
+- **Taxonomies**: Categories, Tags.
+- **Media**: Library & Uploads.
+- **Leads**: Contact form submissions + Status workflow + **Logging**.
+- **Settings**: Site configurations (Global) + **Logging**.
 
-### 1.6 Review Queue module
-- Dedicated page at `/admin/review`
-- Quick Publish button for posts in "Review" status
-
-### 1.7 Media module
-- Upload images to `storage/app/public`
-- Media library index (grid/list)
-
-### 1.8 Settings Module
-- Admin page at `/admin/settings` (Tabbed interface)
-- Config: Site Name, Tagline, Logo, Default Post Status, Posts Per Page, SEO Defaults
-- Cached `setting($key)` helper
-
-### 1.9 Leads / Contact Module
-- Frontend: `/contact` form with validation and SaaS-style design
-- Backend: `/admin/leads` list view with Status workflow (New/Handled/Spam)
-
-### 1.10 Frontend Redesign (SaaS / Minimal Japanese) ✨ NEW
-- **Aesthetic**: Minimalist, whitespace-driven, Slate-50 palette, Inter font
-- **Layout**: Clean top nav, progress bar, sticky header
-- **Home**: Hero section, Featured Post split-card, Grid layout, CTA
-- **Post**: Tailwind Typography (prose), Meta header, Related Posts, Prev/Next Navigation
-- **Responsive**: Fully optimized for mobile
-
-### 1.11 Demo Content ✨ NEW
-- `DemoContentSeeder`: Generates realistic posts (Strategy, Design, Engineering), pages, and leads.
-- **Images**: Supports local demo images in `public/demo/posts/`
+### 1.7 Frontend Redesign
+- **Aesthetic**: Minimalist, whitespace-driven, Slate-50 palette.
+- **Components**: Hero, Featured Post, Grid, Related Posts, Contact Form.
+- **Optimized**: Mobile responsive, sticky header, progress bar.
 
 ---
 
@@ -91,7 +68,7 @@ Demo seed user:
 
 ### Frontend:
 - `GET /` → `site.home`
-- `GET /posts/{slug}` → `site.posts.show`
+- `GET /posts/{slug}` → `site.posts.show` (Tracks unique daily view)
 - `GET /p/{slug}` → `site.pages.show`
 - `GET /contact` → `contact.index`
 - `POST /contact` → `contact.store`
@@ -99,34 +76,35 @@ Demo seed user:
 ### Auth:
 - `GET /login`, `POST /login`, `POST /logout`
 
-### Admin (auth middleware):
-- Resources: `posts`, `pages`, `categories`, `tags`, `media`
-- **Review**: `GET /admin/review`, `POST /publish`
-- **Leads**: `GET /admin/leads`, `POST /status`, `POST /bulk`
-- **Settings**: `GET /admin/settings`, `POST /update`
+### Admin (Shared):
+- `dashboard` (`/admin`) - Analytics Home
+- `posts`, `pages`, `categories`, `tags`, `media`, `leads`, `review`
+
+### Admin (Protected - Admin Only):
+- `settings`: Index, Update
+- `users`: Index, Create, Store, Edit, Update, Toggle
 
 ---
 
 ## 3) Database Schema
 
 ### Tables:
-- `users`, `posts`, `pages`, `categories`, `tags`, `media`
+- `users` (id, name, email, password, **role**, **is_active**)
+- `posts`, `pages`, `categories`, `tags`, `media`
 - `settings` (key, value)
 - `leads` (name, email, phone, message, status, source)
+- `post_view_stats` (post_id, date, views) [Unique(post_id, date)]
+- `activity_logs` (user_id, type, subject_id, subject_type, message, **meta**)
 - Pivot: `category_post`, `post_tag`
 
 ---
 
 ## 4) Code/Folder Notes
 
-### Views:
-- Frontend: `resources/views/site/` (Modern SaaS design)
-- Admin: `resources/views/admin/` (Consolidated layout)
-- Layouts: `components/site/layout.blade.php` (Frontend master)
-
-### Seeders:
-- `DemoContentSeeder`: Main seeder for realistic data
-- `SettingsSeeder`: Default configuration
+- **Helpers**: `app/helpers.php` contains `setting()`, `setting_set()`, and `activity_log()`.
+- **Models**: `PostViewStat` (Analytic), `ActivityLog` (History).
+- **Migrations**: Latest include `create_post_view_stats`, `create_activity_logs`, `add_meta_to_activity_logs`.
+- **Views**: `resources/views/admin/dashboard/index.blade.php` (Main Dashboard).
 
 ---
 
@@ -142,22 +120,23 @@ You are continuing a Laravel mini CMS project. Constraints:
 
 **Current implemented modules:**
 - **Core**: Posts & Pages (CRUD, SEO, Soft Deletes).
+- **Analytics**: Dashboard with Chart.js, KPI cards, Post View tracking (`post_view_stats`).
+- **Activity**: System-wide logging (`activity_logs` + `meta`) for audit trail.
 - **Taxonomies**: Categories & Tags.
 - **Media**: Library & Uploads.
 - **Workflow**: Review Queue.
 - **Settings**: Site-wide config via `setting()` helper.
 - **Leads**: Contact form & Admin management.
-- **Frontend**: Full redesign complete. Minimalist hero, grid layout, typography-focused post view, related posts, mobile responsive.
-- **Demo Data**: `DemoContentSeeder` generates realistic content.
+- **User Management**: RBAC (Admin/Editor), User CRUD.
+- **Frontend**: Full redesign complete. Minimalist.
 
 **Database**:
-- Tables: users, posts, pages, categories, tags, media, settings, leads.
+- Tables included: users, posts, pages, cat, tag, media, settings, leads, post_view_stats, activity_logs.
 
 **NEXT TASK SUGGESTIONS:**
-- User management (CRUD for admin users)
-- Analytics dashboard (simple stats chart)
-- Post scheduling (publish at specific time via scheduler)
-- Comment system
-- Newsletter subscription (integrate with external provider or local)
+- **Post Scheduling**: Implement accurate scheduling (currently just `published_at` field, needs automated publisher or scope adjustment).
+- **Comment System**: Add comments to posts with moderation queue.
+- **Newsletter**: Simple subscription form & email list management.
+- **Search**: Enhance frontend search (currently basic).
 
 **PROMPT END**

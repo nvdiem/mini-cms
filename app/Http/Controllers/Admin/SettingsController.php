@@ -44,6 +44,8 @@ class SettingsController extends Controller
             Cache::forget("setting_{$key}");
         }
 
+        activity_log('settings.updated', null, "Updated system settings", ['count' => count($validated)]);
+
         return redirect()->route('admin.settings.index')
             ->with('toast', [
                 'tone' => 'success',

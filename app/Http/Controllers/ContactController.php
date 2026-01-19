@@ -27,6 +27,8 @@ class ContactController extends Controller
             'status' => 'new'
         ]));
 
+        activity_log('lead.created', $lead, "Guest submitted a contact lead");
+
         // Optional email notification
         $recipientEmail = setting('contact_recipient_email');
         if ($recipientEmail && filter_var($recipientEmail, FILTER_VALIDATE_EMAIL)) {

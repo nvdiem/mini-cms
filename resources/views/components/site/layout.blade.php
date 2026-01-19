@@ -9,6 +9,18 @@
   <meta name="description" content="{{ $meta_description ?? (setting('seo_default_description') ?: '') }}">
   <meta name="keywords" content="{{ $meta_keywords ?? (setting('seo_default_keywords') ?: '') }}">
 
+  @php
+      $finalRobots = $robots ?? 'index, follow';
+      if(!empty($isPreview)) {
+          $finalRobots = 'noindex, nofollow';
+      }
+  @endphp
+  <meta name="robots" content="{{ $finalRobots }}">
+  
+  @if(!empty($canonical))
+    <link rel="canonical" href="{{ $canonical }}">
+  @endif
+
   <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">

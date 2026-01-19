@@ -44,6 +44,7 @@ class LeadController extends Controller
         ]);
 
         $lead->update(['status' => $validated['status']]);
+        activity_log('status_change', null, "Updated lead status to '{$validated['status']}'");
 
         return redirect()->back()
             ->with('toast', [
@@ -64,9 +65,11 @@ class LeadController extends Controller
         if ($validated['action'] === 'delete') {
             Lead::whereIn('id', $validated['ids'])->delete();
             $message = 'Selected leads deleted.';
+            activity_log('bulk_delete', null, "Deleted " . count($validated['ids']) . " leads");
         } else {
             Lead::whereIn('id', $validated['ids'])->update(['status' => $validated['action']]);
             $message = "Selected leads marked as {$validated['action']}.";
+            activity_log('bulk_status', null, "Updated status for " . count($validated['ids']) . " leads");
         }
 
         return redirect()->back()

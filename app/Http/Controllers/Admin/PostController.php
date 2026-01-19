@@ -90,6 +90,8 @@ class PostController extends Controller
         $post->categories()->sync($data['category_ids'] ?? []);
         $post->tags()->sync($data['tag_ids'] ?? []);
 
+        activity_log('created', $post, "Created post '{$post->title}'");
+
         return redirect()
             ->route('admin.posts.edit', $post)
             ->with('toast', ['tone' => 'success', 'title' => 'Saved', 'message' => 'Post created successfully.']);
@@ -124,6 +126,8 @@ class PostController extends Controller
         $post->categories()->sync($data['category_ids'] ?? []);
         $post->tags()->sync($data['tag_ids'] ?? []);
 
+        activity_log('updated', $post, "Updated post '{$post->title}'");
+
         return back()->with('toast', ['tone' => 'success', 'title' => 'Saved', 'message' => 'Changes saved.']);
     }
 
@@ -140,6 +144,7 @@ class PostController extends Controller
     public function destroy(Post $post)
     {
         $post->delete();
+        activity_log('trashed', $post, "Moved post '{$post->title}' to trash");
 
         return redirect()
             ->route('admin.posts.index')
@@ -155,6 +160,7 @@ class PostController extends Controller
     {
         $post = Post::withTrashed()->findOrFail($id);
         $post->restore();
+        activity_log('restored', $post, "Restored post '{$post->title}'");
 
         return redirect()
             ->route('admin.posts.index')
@@ -172,11 +178,13 @@ class PostController extends Controller
 
         if ($action === 'delete') {
             Post::whereIn('id', $ids)->delete();
+            activity_log('bulk_trash', null, "Moved " . count($ids) . " posts to trash");
             return back()->with('toast', ['tone' => 'danger', 'title' => 'Moved to trash', 'message' => 'Selected posts moved to trash.']);
         }
 
         if ($action === 'restore') {
             Post::withTrashed()->whereIn('id', $ids)->restore();
+            activity_log('bulk_restore', null, "Restored " . count($ids) . " posts");
             return back()->with('toast', ['tone' => 'success', 'title' => 'Restored', 'message' => 'Selected posts restored.']);
         }
 

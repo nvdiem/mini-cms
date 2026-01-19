@@ -102,14 +102,19 @@
 <div class="flex h-screen overflow-hidden">
   <aside class="w-64 bg-surface-light dark:bg-surface-dark border-r border-border-light dark:border-border-dark flex-shrink-0 hidden md:flex flex-col z-20">
     <div class="h-16 flex items-center px-6 border-b border-border-light dark:border-border-dark">
-      <a class="flex items-center gap-2 font-bold text-lg tracking-tight text-text-strong dark:text-white hover:text-primary transition-colors" href="{{ route('admin.posts.index') }}">
+      <a class="flex items-center gap-2 font-bold text-lg tracking-tight text-text-strong dark:text-white hover:text-primary transition-colors" href="{{ route('admin.dashboard') }}">
         <span class="material-icons-outlined text-primary" aria-hidden="true">all_inclusive</span>
         PointOne
       </a>
     </div>
 
     <nav class="flex-1 overflow-y-auto py-5 px-3 space-y-1">
-      <p class="px-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-2">Content</p>
+      <a class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors {{ request()->routeIs('admin.dashboard') ? 'bg-primary/10 text-primary dark:bg-primary/15' : '' }}" href="{{ route('admin.dashboard') }}">
+        <span class="material-icons-outlined mr-3 text-[20px] {{ request()->routeIs('admin.dashboard') ? 'text-primary' : 'text-slate-400 group-hover:text-slate-500 dark:text-slate-500 dark:group-hover:text-slate-300' }}" aria-hidden="true">dashboard</span>
+        Dashboard
+      </a>
+
+      <p class="px-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-4">Content</p>
 
       <a class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors {{ request()->is('admin/posts*') ? 'bg-primary/10 text-primary dark:bg-primary/15' : '' }}" href="{{ route('admin.posts.index') }}">
         <span class="material-icons-outlined mr-3 text-[20px] {{ request()->is('admin/posts*') ? 'text-primary' : 'text-slate-400 group-hover:text-slate-500 dark:text-slate-500 dark:group-hover:text-slate-300' }}" aria-hidden="true">article</span>
@@ -147,14 +152,7 @@
         Leads
       </a>
 
-      <p class="px-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-6">Analytics</p>
-      <a class="group flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg text-text-muted hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" href="#" onclick="return false;">
-        <span class="flex items-center">
-          <span class="material-icons-outlined mr-3 text-[20px] text-slate-400 dark:text-slate-500" aria-hidden="true">bar_chart</span>
-          Analytics
-        </span>
-        <span class="badge badge-soon">Soon</span>
-      </a>
+
 
       @if(auth()->user()->role === 'admin')
       <p class="px-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-6">System</p>

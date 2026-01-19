@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use App\Models\Page;
 
+use App\Models\PostViewStat;
+
 class SiteController extends Controller
 {
     public function home()
@@ -29,6 +31,9 @@ class SiteController extends Controller
             ->with(['author','featuredImage','categories','tags'])
             ->where('slug', $slug)
             ->firstOrFail();
+
+        // Increment Views
+        PostViewStat::incrementFor($post->id);
 
         // Prev/Next navigation
         $nextPost = null;
@@ -74,7 +79,8 @@ class SiteController extends Controller
             'prevPost' => $prevPost,
             'relatedPosts' => $relatedPosts,
             'isPreview' => false,
-            'backUrl' => null
+            'backUrl' => null,
+            'canonical' => route('site.posts.show', $post->slug)
         ]);
     }
 
@@ -86,6 +92,11 @@ class SiteController extends Controller
             ->where('slug', $slug)
             ->firstOrFail();
 
-        return view('site.page', ['page' => $page, 'isPreview' => false, 'backUrl' => null]);
+        return view('site.page', [
+            'page' => $page, 
+            'isPreview' => false, 
+            'backUrl' => null,
+            'canonical' => route('site.pages.show', $page->slug)
+        ]);
     }
 }

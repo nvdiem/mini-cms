@@ -48,6 +48,8 @@ class ReviewController extends Controller
         }
         $post->save();
 
+        activity_log('published', $post, "Quick published post '{$post->title}'");
+
         return back()->with('toast', [
             'tone' => 'success',
             'title' => 'Published',
