@@ -1,34 +1,43 @@
-You are continuing a Laravel mini CMS project. Constraints:
+You are continuing a Laravel mini CMS project. I uploaded a zip of the project source (no vendor, no node_modules).
+
+CONSTRAINTS
 - Laravel + MySQL (Laragon Windows)
 - Blade only, Tailwind via CDN (NO npm, NO Vite)
 - Custom auth (no Breeze)
-- UI must remain consistent with `mini_cms_templates_v2`: calm color tokens, confirm modal, toast+undo, responsive (desktop table + mobile card view).
-- Admin layout is an anonymous Blade component at `resources/views/components/admin/layout.blade.php`.
-- Site layout is an anonymous Blade component at `resources/views/components/site/layout.blade.php`.
+- Keep calm long-session-friendly UI
+- Use existing patterns: toast notifications + confirm modal + responsive (desktop table + mobile card view)
+- Do not refactor widely; prefer minimal diffs.
 
-Current implemented modules:
-- Admin: Posts (CRUD, soft delete+restore, bulk actions, confirm modal, toast+undo, category sync, featured image), Categories (CRUD lite), Media (upload/library/delete), Admin Preview (`/admin/posts/{post}/preview`).
-- Frontend: Homepage `/` lists published posts only (status=published and published_at<=now or null), Post detail `/posts/{slug}` for published only.
-- Admin header shows logged in user email and has “Visit site” link.
+WHAT’S ALREADY DONE (CURRENT STATE)
+- Admin modules: Posts (CRUD, soft delete+restore, bulk actions, preview), Pages, Review Queue (quick publish), Tags, Categories, Media (upload/library/delete), Leads, Settings, Users+Roles (admin/editor).
+- Frontend: Minimal Japanese + SaaS CTA, homepage + post detail + contact + pages; demo seed data exists.
+- Analytics Dashboard “SaaS feel”: KPI cards + chart via Chart.js CDN, top posts, recent activity concept.
 
-TASK (next phase):
-Implement Pages + Review Queue (quick publish) + Tags:
-1) Pages module:
-   - DB: pages table (title, slug, excerpt, content, status, published_at, author_id, featured_image_id, timestamps, soft deletes if needed)
-   - Admin: `/admin/pages` list + create/edit; re-use the same UI patterns as Posts.
-   - Frontend: `/p/{slug}` shows published pages only.
-2) Review Queue:
-   - Admin page: `/admin/review` (or `/admin/posts?status=review` with a dedicated UI) listing posts in review.
-   - Quick publish action: POST endpoint that sets status=published and published_at=now if empty.
-   - Show toast on success.
-3) Tags module:
-   - DB: tags table + pivot table post_tag
-   - Admin: tags CRUD page
-   - Post editor: assign tags (checkbox list or simple comma input)
-   - Post list: filter by tag
-   - Frontend: show tag chips on post detail.
+KNOWN ISSUES / GAPS (IMPORTANT)
+- Media improvements: 
+  - Upload is partial (missing dimensions)
+  - Delete must be safe (block deleting media if used by posts/pages)
+  - No media detail/edit view (alt_text, caption, copy URL)
+  - No orphans tool
+- I now want to implement “Media folders (1-level) + sidebar folder list + count badges” in /admin/media.
 
-Output:
-- Provide patch zip changes (files to copy) and exact routes/web.php additions.
-- No npm. Keep UI consistent with existing tokens/components.
-- Use confirm modal + toast pattern for destructive actions.
+YOUR TASK
+1) Read the project code from the uploaded zip and confirm:
+   - Current routes for /admin/media
+   - MediaController and Media model fields
+   - Database schema/migrations for media
+2) Implement Media Folders (1-level):
+   - Add media_folders table + media.folder_id (nullable, FK set null on delete)
+   - Add CRUD folders (create/rename/delete) and “move media to folder” (bulk)
+   - Add folder filter via query string: folder=none or folder={id}
+3) Add Sidebar folder list + count badges in /admin/media:
+   - All Media, Unsorted, each folder with count badge
+   - Active state highlight
+   - Preserve search query when clicking
+4) Output patch-style changes (full file contents, migrations, routes)
+5) Provide commands to run (migrate, view clear)
+
+DELIVERABLE FORMAT
+- A short summary
+- A file-by-file patch list with full contents
+- Any notes for Laragon Windows (storage:link etc.)

@@ -161,7 +161,7 @@
   </div>
 
   <!-- New Folder Modal -->
-  <dialog id="newFolderModal" class="modal rounded-xl shadow-xl p-0 w-full max-w-sm backdrop:bg-slate-900/50">
+  <dialog id="newFolderModal" class="rounded-xl shadow-xl p-0 w-full max-w-sm backdrop:bg-slate-900/50">
     <div class="p-6">
        <h3 class="text-lg font-semibold mb-4">New Folder</h3>
        <form method="POST" action="{{ route('admin.media.folders.store') }}">
@@ -179,7 +179,7 @@
   </dialog>
 
   <!-- Edit Folder Modal (Reused Logic via JS) -->
-  <dialog id="editFolderModal" class="modal rounded-xl shadow-xl p-0 w-full max-w-sm backdrop:bg-slate-900/50">
+  <dialog id="editFolderModal" class="rounded-xl shadow-xl p-0 w-full max-w-sm backdrop:bg-slate-900/50">
      <div class="p-6">
        <h3 class="text-lg font-semibold mb-4">Rename Folder</h3>
        <form method="POST" id="editFolderForm" action="#" data-route="{{ route('admin.media.folders.update', ':id') }}">
