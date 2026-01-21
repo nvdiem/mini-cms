@@ -81,3 +81,6 @@ Route::get('/posts/{slug}', [SiteController::class, 'show'])->name('site.posts.s
 Route::get('/p/{slug}', [SiteController::class, 'showPage'])->name('site.pages.show');
 Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
 Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
+
+// Search
+Route::get('/search', [App\Http\Controllers\SearchController::class, 'index'])->name('site.search');

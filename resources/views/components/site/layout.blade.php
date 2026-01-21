@@ -83,24 +83,42 @@
         {{ setting('site_name') ?: 'PointOne' }}
       </a>
 
-      <!-- Links -->
-      <div class="flex items-center gap-6 text-sm font-medium">
-        <a href="{{ route('site.home') }}" class="text-slate-600 hover:text-primary transition">Home</a>
-        <a href="{{ route('site.home') }}#latest" class="hidden sm:block text-slate-600 hover:text-primary transition">Blog</a>
-        <a href="{{ route('contact.index') }}" class="text-slate-600 hover:text-primary transition">Contact</a>
-        
-        @auth
-          <a href="{{ route('admin.dashboard') }}" class="text-slate-900 hover:text-primary transition flex items-center gap-1">
-            <span>Admin</span>
-            <span class="material-icons-outlined text-[16px]">arrow_forward</span>
+      <!-- Search & Links -->
+      <div class="flex items-center gap-6">
+        <!-- Search Bar (Desktop) -->
+        <form action="{{ route('site.search') }}" method="GET" class="hidden md:block relative">
+          <input 
+            type="text" 
+            name="q" 
+            placeholder="Search..." 
+            class="w-48 h-9 pl-9 pr-4 rounded-full bg-slate-100 border-none text-sm text-slate-700 focus:bg-white focus:ring-2 focus:ring-primary/20 transition"
+          >
+          <span class="material-icons-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">search</span>
+        </form>
+
+        <div class="flex items-center gap-6 text-sm font-medium">
+          <a href="{{ route('site.home') }}" class="text-slate-600 hover:text-primary transition">Home</a>
+          <a href="{{ route('site.home') }}#latest" class="hidden sm:block text-slate-600 hover:text-primary transition">Blog</a>
+          <a href="{{ route('contact.index') }}" class="text-slate-600 hover:text-primary transition">Contact</a>
+          
+          {{-- Search Icon (Mobile) --}}
+          <a href="{{ route('site.search') }}" class="md:hidden text-slate-600 hover:text-primary">
+            <span class="material-icons-outlined">search</span>
           </a>
-        @else
-          <!-- Optional login link or CTA if desired -->
-        @endauth
-        
-        <a href="{{ route('contact.index') }}" class="hidden sm:inline-flex items-center justify-center px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition shadow-sm text-xs font-semibold uppercase tracking-wide">
-          Get in touch
-        </a>
+
+          @auth
+            <a href="{{ route('admin.dashboard') }}" class="text-slate-900 hover:text-primary transition flex items-center gap-1">
+              <span>Admin</span>
+              <span class="material-icons-outlined text-[16px]">arrow_forward</span>
+            </a>
+          @else
+            <!-- Optional login link or CTA if desired -->
+          @endauth
+          
+          <a href="{{ route('contact.index') }}" class="hidden sm:inline-flex items-center justify-center px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition shadow-sm text-xs font-semibold uppercase tracking-wide">
+            Get in touch
+          </a>
+        </div>
       </div>
     </div>
   </nav>

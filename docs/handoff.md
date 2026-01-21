@@ -53,6 +53,11 @@ This document summarizes the current state of the project and provides a handoff
   - New Folder modal & Rename Folder modal.
   - Sidebar counts respect Search Query (e.g. searching "logo" shows counts per folder).
 - **Upload**: Auto-captures image dimensions.
+- **Media Picker Modal**: Reusable component `<x-media-picker>` with:
+  - Grid layout, Search, Folder Filter.
+  - **Smart Resizing**: Width/Height inputs with auto-calculation (aspect ratio lock).
+  - Integration with TinyMCE (auto-inserts `<img>` with dimensions).
+  - Integration with Featured Image selection.
 
 ### 1.6 SEO Features (Sprint 4) 🚀
 - **Sitemap**: `/sitemap.xml` generated dynamically for Posts & Pages.
@@ -154,21 +159,30 @@ This document summarizes the current state of the project and provides a handoff
 
 ## 5) Known Issues & Next Steps
 
-### 🔴 **Critical: Media Picker Modal Needed**
-- **Issue**: TinyMCE "Media Library" button opens new tab instead of modal
-- **Impact**: Cannot insert images into content from Media Library
-- **Solution**: Implement reusable `<x-media-picker>` component
-- **Use Cases**:
-  1. Insert images into TinyMCE content (Posts & Pages)
-  2. Select Featured Images (replace current dropdown)
+### 1.12 Media Picker Modal (Sprint 6) ✅
+- **Component**: Reusable `<x-media-picker>` modal.
+- **Features**:
+  - **Smart Resize**: Auto-calculates height from width (and vice versa) using aspect ratio.
+  - **Legacy Support**: JS auto-detects dimensions for old images without DB metadata.
+  - **Integration**: Works seamlessly with TinyMCE and Featured Image selection.
+
+### 1.13 Frontend Search (Sprint 6) 🔍
+- **Route**: `/search?q=...`
+- **Logic**: Searches Title (priority), Excerpt, Content.
+- **Features**:
+  - **Highlighting**: Keyword matches highlighted in yellow in Title and Snippets.
+  - **Snippets**: Auto-generated text window around keyword.
+  - **Header**: Integrated search bar in site navigation.
+  - **Security**: Only shows published posts.
 
 ### 📋 **Planned Features**
-- **Media Picker Modal** (High Priority)
 - **Phase D (Media)**: Thumbnails generation (optimization)
 - **Post Scheduling**: Implement accurate scheduling (currently just `published_at` field)
 - **Comment System**: Add comments to posts with moderation queue
 - **Newsletter**: Simple subscription form & email list management
-- **Search**: Enhance frontend search (currently basic)
+- **Comment System**: Add comments to posts with moderation queue
+- **Newsletter**: Simple subscription form & email list management
+
 
 ---
 
@@ -191,24 +205,22 @@ You are continuing a Laravel mini CMS project. Constraints:
   - **Safety**: Prevent delete if in use.
   - **Metadata**: Alt/Caption/Dimensions.
   - **Details**: Dedicated view for management.
-  - **⚠️ Missing**: Media Picker Modal for TinyMCE & Featured Image selection.
+  - **Picker**: **Reusable Modal** with Smart Resizing for TinyMCE & Featured Image.
 - **SEO**: Sitemap, Robots, Canonical.
 - **Taxonomies**: Categories & Tags.
 - **Settings**: Site-wide config via `setting()` helper.
 - **Leads**: Contact form & Admin management.
 - **User Management**: RBAC (Admin/Editor), User CRUD.
 - **Frontend**: Full redesign complete. Minimalist.
+  - **Search**: Advanced search with highlighting & snippets.
 - **Editor**: TinyMCE 6 integrated (GPL) at `public/js/tinymce/`.
 
 **Database**:
 - Tables included: users, posts, pages, categories, tags, media, media_folders, settings, leads, post_view_stats, activity_logs.
 
 **IMMEDIATE NEXT TASK:**
-- **Media Picker Modal**: Create reusable component for selecting images from Media Library
-  - Use in TinyMCE "Media Library" button (insert into content)
-  - Use for Featured Image selection (replace dropdown)
-  - Modal should show grid, search, folder filter, pagination
-  - Callback mechanism: `openMediaPicker(callback)` → returns `{id, url, alt}`
+- **Phase D (Media)**: Thumbnails generation (optimization).
+- **Post Scheduling**: Implement accurate scheduling.
 
 **OTHER SUGGESTIONS:**
 - **Phase D (Media)**: Thumbnails generation (optimization).

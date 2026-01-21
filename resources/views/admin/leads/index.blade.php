@@ -7,51 +7,58 @@
   </div>
 
   <div class="card overflow-hidden">
-    <div class="px-4 sm:px-6 py-3 bg-slate-50/70 dark:bg-slate-800/30 border-b border-border-light dark:border-border-dark space-y-3">
-      <form class="flex flex-col sm:flex-row gap-3 sm:items-center" method="GET" action="{{ route('admin.leads.index') }}">
-        <div class="relative w-full sm:w-80">
-          <input class="input pr-10" name="q" value="{{ $q }}" placeholder="Search leads..." />
-          <span class="material-icons-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true">search</span>
-        </div>
-
-        <div class="relative w-full sm:w-44">
-          <select class="select" name="status">
-            <option value="">All status</option>
-            <option value="new" {{ $status==='new' ? 'selected' : '' }}>New</option>
-            <option value="handled" {{ $status==='handled' ? 'selected' : '' }}>Handled</option>
-            <option value="spam" {{ $status==='spam' ? 'selected' : '' }}>Spam</option>
-          </select>
-          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
-            <span class="material-icons-outlined text-sm" aria-hidden="true">expand_more</span>
+    <div class="px-4 sm:px-6 py-3 bg-slate-50/70 dark:bg-slate-800/30 border-b border-border-light dark:border-border-dark">
+      <div class="flex flex-col lg:flex-row gap-3 lg:items-center">
+        {{-- Bulk Actions --}}
+        <form id="bulkForm" class="flex flex-col sm:flex-row gap-2 sm:items-center" method="POST" action="{{ route('admin.leads.bulk') }}">
+          @csrf
+          <div class="relative w-full sm:w-48">
+            <select class="select text-sm" name="action" required>
+              <option value="">Bulk Actions</option>
+              <option value="new">Mark as New</option>
+              <option value="handled">Mark as Handled</option>
+              <option value="spam">Mark as Spam</option>
+              <option value="delete">Delete</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
+              <span class="material-icons-outlined text-sm" aria-hidden="true">expand_more</span>
+            </div>
           </div>
-        </div>
 
-        <button class="btn-ghost" type="submit">Filter</button>
-        <a class="btn-soft px-3 py-2" href="{{ route('admin.leads.index') }}">Clear</a>
+          <button class="btn-ghost sm:w-auto" type="submit">Apply</button>
+        </form>
 
-        <div class="sm:ml-auto text-sm text-slate-500 dark:text-slate-400">
-          {{ $leads->total() }} leads
-        </div>
-      </form>
+        {{-- Divider --}}
+        <div class="hidden lg:block h-8 w-px bg-border-light dark:bg-border-dark"></div>
 
-      <form id="bulkForm" class="flex flex-col sm:flex-row gap-3 sm:items-center" method="POST" action="{{ route('admin.leads.bulk') }}">
-        @csrf
-        <div class="relative w-full sm:w-60">
-          <select class="select" name="action" required>
-            <option value="">Bulk Actions</option>
-            <option value="new">Mark as New</option>
-            <option value="handled">Mark as Handled</option>
-            <option value="spam">Mark as Spam</option>
-            <option value="delete">Delete</option>
-          </select>
-          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
-            <span class="material-icons-outlined text-sm" aria-hidden="true">expand_more</span>
+        {{-- Search & Filters --}}
+        <form class="flex flex-col sm:flex-row gap-2 sm:items-center flex-1" method="GET" action="{{ route('admin.leads.index') }}">
+          <div class="relative w-full sm:w-64">
+            <input class="input pr-10" name="q" value="{{ $q }}" placeholder="Search leads..." />
+            <span class="material-icons-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true">search</span>
           </div>
-        </div>
 
-        <button class="btn-ghost" type="submit">Apply</button>
-        <div class="text-xs text-slate-500 dark:text-slate-400">Select rows then apply.</div>
-      </form>
+          <div class="relative w-full sm:w-40">
+            <select class="select" name="status">
+              <option value="">All status</option>
+              <option value="new" {{ $status==='new' ? 'selected' : '' }}>New</option>
+              <option value="handled" {{ $status==='handled' ? 'selected' : '' }}>Handled</option>
+              <option value="spam" {{ $status==='spam' ? 'selected' : '' }}>Spam</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
+              <span class="material-icons-outlined text-sm" aria-hidden="true">expand_more</span>
+            </div>
+          </div>
+
+          <button class="btn-ghost sm:w-auto" type="submit">Filter</button>
+          <a class="btn-soft px-3 py-2 sm:w-auto text-center" href="{{ route('admin.leads.index') }}">Clear</a>
+        </form>
+
+        {{-- Item Count --}}
+        <div class="text-sm text-slate-500 dark:text-slate-400">
+          {{ $leads->total() }} items
+        </div>
+      </div>
     </div>
 
     @if($leads->count() === 0)

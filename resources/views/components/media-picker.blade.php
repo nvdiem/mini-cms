@@ -194,31 +194,47 @@ function selectMediaItem(element) {
   element.classList.add('border-primary', 'bg-primary/5');
   element.querySelector('.media-selected-indicator').classList.remove('hidden');
   
-  // Store selected item data
-  const originalWidth = parseInt(element.dataset.width) || 0;
-  const originalHeight = parseInt(element.dataset.height) || 0;
-  
-  selectedMediaItem = {
-    id: element.dataset.id,
-    url: element.dataset.url,
-    alt: element.dataset.alt,
-    name: element.dataset.name,
-    originalWidth: originalWidth,
-    originalHeight: originalHeight
-  };
+  // Get data
+  const id = element.dataset.id;
+  const url = element.dataset.url;
+  const alt = element.dataset.alt;
+  const name = element.dataset.name;
+  let originalWidth = parseInt(element.dataset.width) || 0;
+  let originalHeight = parseInt(element.dataset.height) || 0;
 
-  // Show resize options if it's an image
-  if (originalWidth > 0 && originalHeight > 0) {
-    document.getElementById('mediaPickerResize').classList.remove('hidden');
-    document.getElementById('imgWidth').value = originalWidth;
-    document.getElementById('imgHeight').value = originalHeight;
-    originalRatio = originalWidth / originalHeight;
-  } else {
-    document.getElementById('mediaPickerResize').classList.add('hidden');
-  }
+  // Prepare selected item object (dimensions might update later)
+  selectedMediaItem = { id, url, alt, name, originalWidth, originalHeight };
   
   // Enable select button
   document.getElementById('mediaPickerSelectBtn').disabled = false;
+
+  // Handle Resize Options
+  const mime = element.querySelector('img') ? 'image' : 'file'; // Simple check
+  
+  if (mime === 'image') {
+    if (originalWidth > 0 && originalHeight > 0) {
+      showResizeOptions(originalWidth, originalHeight);
+    } else {
+      // Dimensions missing in DB? Load image to find out
+      const img = new Image();
+      img.onload = function() {
+        selectedMediaItem.originalWidth = this.naturalWidth;
+        selectedMediaItem.originalHeight = this.naturalHeight;
+        showResizeOptions(this.naturalWidth, this.naturalHeight);
+      };
+      img.src = url;
+    }
+  } else {
+    document.getElementById('mediaPickerResize').classList.add('hidden');
+  }
+}
+
+// Helper to show resize options
+function showResizeOptions(w, h) {
+  document.getElementById('mediaPickerResize').classList.remove('hidden');
+  document.getElementById('imgWidth').value = w;
+  document.getElementById('imgHeight').value = h;
+  originalRatio = w / h;
 }
 
 // Calculate Height based on Width

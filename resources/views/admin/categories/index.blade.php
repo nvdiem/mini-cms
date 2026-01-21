@@ -83,8 +83,17 @@
                           </div>
                           <div class="flex gap-2">
                             <button class="btn-soft px-3 py-2" type="submit">Save</button>
-                            <button class="btn-danger px-3 py-2" type="submit" formaction="{{ route('admin.categories.destroy', $cat) }}" formmethod="POST" onclick="event.preventDefault(); if(confirm('Delete this category?')) { const f=document.createElement('form'); f.method='POST'; f.action='{{ route('admin.categories.destroy', $cat) }}'; f.innerHTML='@csrf @method('DELETE')'; document.body.appendChild(f); f.submit(); }">Delete</button>
+                            <button 
+                              class="btn-danger px-3 py-2" 
+                              type="button" 
+                              onclick="if(confirm('Delete this category?')) document.getElementById('delCat_{{ $cat->id }}').submit()"
+                            >
+                              Delete
+                            </button>
                           </div>
+                        </form>
+                        <form id="delCat_{{ $cat->id }}" action="{{ route('admin.categories.destroy', $cat) }}" method="POST" class="hidden">
+                          @csrf @method('DELETE')
                         </form>
                       </div>
                     </details>
