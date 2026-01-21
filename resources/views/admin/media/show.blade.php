@@ -90,6 +90,16 @@
              <input type="text" name="alt_text" value="{{ old('alt_text', $media->alt_text) }}" class="input" placeholder="Describe the image for accessibility/SEO">
              <p class="text-xs text-text-muted mt-1">Used by screen readers and SEO.</p>
            </div>
+
+           <div>
+              <label class="block text-sm font-medium mb-1">Folder</label>
+              <select name="folder_id" class="input">
+                <option value="">(Unsorted)</option>
+                @foreach(\App\Models\MediaFolder::orderBy('name')->get() as $f)
+                  <option value="{{ $f->id }}" {{ $media->folder_id == $f->id ? 'selected' : '' }}>{{ $f->name }}</option>
+                @endforeach
+              </select>
+            </div>
            
            <div>
              <label class="block text-sm font-medium mb-1">Caption</label>

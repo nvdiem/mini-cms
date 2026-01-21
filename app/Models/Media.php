@@ -7,7 +7,12 @@ use Illuminate\Support\Facades\Storage;
 
 class Media extends Model
 {
-    protected $fillable = ['disk','path','original_name','mime','size','uploaded_by', 'alt_text', 'caption', 'width', 'height'];
+    protected $fillable = ['disk','path','original_name','mime','size','uploaded_by', 'alt_text', 'caption', 'width', 'height', 'folder_id'];
+
+    public function folder()
+    {
+        return $this->belongsTo(MediaFolder::class, 'folder_id');
+    }
 
     public function uploader()
     {

@@ -52,6 +52,9 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function(){
     Route::post('review/{post}/publish', [ReviewController::class, 'publish'])->name('review.publish');
 
     // Media
+    Route::post('media/folders', [\App\Http\Controllers\Admin\MediaFolderController::class, 'store'])->name('media.folders.store');
+    Route::put('media/folders/{folder}', [\App\Http\Controllers\Admin\MediaFolderController::class, 'update'])->name('media.folders.update');
+    Route::delete('media/folders/{folder}', [\App\Http\Controllers\Admin\MediaFolderController::class, 'destroy'])->name('media.folders.destroy');
     Route::resource('media', MediaController::class)->parameters(['media' => 'media']);
 
     // Leads

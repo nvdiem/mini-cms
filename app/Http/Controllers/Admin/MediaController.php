@@ -13,17 +13,49 @@ class MediaController extends Controller
     public function index(Request $request)
     {
         $q = trim((string) $request->query('q', ''));
+        $folderParam = $request->query('folder', 'all');
 
-        $items = Media::query()
-            ->when($q !== '', function($qr) use ($q) {
-                $qr->where('original_name','like',"%{$q}%")
-                   ->orWhere('path','like',"%{$q}%");
-            })
-            ->orderByDesc('id')
+        // Base Constraint for Search
+        $constraint = function($query) use ($q) {
+            if ($q !== '') {
+                $query->where(function($sub) use ($q) {
+                    $sub->where('original_name','like',"%{$q}%")
+                        ->orWhere('path','like',"%{$q}%")
+                        ->orWhere('alt_text','like',"%{$q}%");
+                });
+            }
+        };
+
+        // Counts (Search Aware)
+        $totalCount = Media::where($constraint)->count();
+        $unsortedCount = Media::where($constraint)->whereNull('folder_id')->count();
+        
+        // Folder Counts via GroupBy for performance
+        $folderCounts = Media::where($constraint)
+            ->whereNotNull('folder_id')
+            ->selectRaw('folder_id, count(*) as count')
+            ->groupBy('folder_id')
+            ->pluck('count', 'folder_id');
+
+        $folders = \App\Models\MediaFolder::orderBy('name')->get()->map(function($f) use ($folderCounts) {
+             $f->current_count = $folderCounts[$f->id] ?? 0;
+             return $f;
+        });
+
+        // Main Query
+        $itemsQuery = Media::query()->where($constraint);
+
+        if ($folderParam === 'none') {
+            $itemsQuery->whereNull('folder_id');
+        } elseif (is_numeric($folderParam)) {
+            $itemsQuery->where('folder_id', $folderParam);
+        }
+
+        $items = $itemsQuery->orderByDesc('id')
             ->paginate(24)
             ->withQueryString();
 
-        return view('admin.media.index', compact('items','q'));
+        return view('admin.media.index', compact('items','q','folderParam','totalCount','unsortedCount','folders'));
     }
 
     public function store(Request $request)
@@ -74,6 +106,7 @@ class MediaController extends Controller
         $data = $request->validate([
             'alt_text' => ['nullable', 'string', 'max:255'],
             'caption' => ['nullable', 'string', 'max:1000'],
+            'folder_id' => ['nullable', 'exists:media_folders,id'],
         ]);
 
         $media->update($data);
