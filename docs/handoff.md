@@ -1,4 +1,4 @@
-# Mini CMS (Laravel + Blade, No NPM) — Project Status & Handoff (as of 2026-01-20)
+# Mini CMS (Laravel + Blade, No NPM) — Project Status & Handoff (as of 2026-01-21)
 
 This document summarizes the current state of the project and provides a handoff prompt so another AI can continue the work seamlessly.
 
@@ -59,20 +59,40 @@ This document summarizes the current state of the project and provides a handoff
 - **Robots**: `/robots.txt` generated dynamically.
 - **Meta Tags**: Canonical URLs and Noindex for non-public pages.
 
-### 1.7 Admin UI
+### 1.7 WordPress-Style Editor Layout (Sprint 5) 🎨
+- **Posts & Pages**: Redesigned create/edit forms with 2-column layout
+  - **Left Column (8/12)**: Title, Permalink, Content (TinyMCE), Excerpt, SEO Settings (collapsible)
+  - **Right Sidebar (4/12)**: Publish box, Categories (Posts only), Tags (Posts only), Featured Image
+- **Icons**: Material Icons for visual hierarchy (Publish, Categories, Tags, Featured Image)
+- **Responsive**: Mobile-friendly (stacks vertically on small screens)
+
+### 1.8 TinyMCE Rich Text Editor (Sprint 5) ✨
+- **Integration**: TinyMCE 6 (GPL license) for Posts & Pages content editing
+- **Location**: `public/js/tinymce/tinymce.min.js`
+- **Configuration**:
+  - Height: 600px
+  - Plugins: lists, link, code, table, fullscreen, image
+  - Toolbar: undo/redo, blocks, bold/italic, lists, link, table, media, code, fullscreen
+  - Custom "Media Library" button (currently opens new tab - **needs modal implementation**)
+
+### 1.9 Admin UI Improvements
 - **Sidebar**: Dashboard link added. Role-based visibility.
 - **Header**: Shows User Badge (ADM/EDT).
 - **Layout**: Calm theme, responsive sidebar.
+- **Toolbar Consolidation**: Posts & Pages index now have single-row toolbar
+  - **Left**: Bulk Actions dropdown + Apply button
+  - **Center**: Vertical divider
+  - **Right**: Search + Filters + Filter/Clear buttons + Item count
 
-### 1.8 Core Modules
-- **Posts**: CRUD, SEO, Tags/Cats, Review Workflow, **View Tracking**.
-- **Pages**: CRUD, SEO, **Activity Logging**.
+### 1.10 Core Modules
+- **Posts**: CRUD, SEO, Tags/Cats, Review Workflow, **View Tracking**, **TinyMCE Editor**.
+- **Pages**: CRUD, SEO, **Activity Logging**, **TinyMCE Editor**.
 - **Taxonomies**: Categories, Tags.
 - **Media**: Library & Uploads & Folders.
 - **Leads**: Contact form submissions + Status workflow + **Logging**.
 - **Settings**: Site configurations (Global) + **Logging**.
 
-### 1.9 Frontend Redesign
+### 1.11 Frontend Redesign
 - **Aesthetic**: Minimalist, whitespace-driven, Slate-50 palette.
 - **Components**: Hero, Featured Post, Grid, Related Posts, Contact Form.
 - **Optimized**: Mobile responsive, sticky header, progress bar.
@@ -95,7 +115,7 @@ This document summarizes the current state of the project and provides a handoff
 ### Admin (Shared):
 - `dashboard` (`/admin`) - Analytics Home
 - `posts`, `pages`, `categories`, `tags`, `leads`, `review`
-- `media` (Now full resource with folders support)
+- `media` (Full resource with folders support + detail view)
 
 ### Admin (Protected - Admin Only):
 - `settings`: Index, Update
@@ -107,7 +127,7 @@ This document summarizes the current state of the project and provides a handoff
 
 ### Tables:
 - `users` (id, name, email, password, **role**, **is_active**)
-- `posts`, `pages` (featured_image_id, etc)
+- `posts`, `pages` (featured_image_id, meta_title, meta_description, meta_keywords, etc)
 - `categories`, `tags`, `pivot_tables`
 - `media` (id, path, **folder_id**, **alt_text**, **caption**, **width**, **height**, etc)
 - `media_folders` (id, name)
@@ -123,11 +143,36 @@ This document summarizes the current state of the project and provides a handoff
 - **Helpers**: `app/helpers.php` contains `setting()`, `setting_set()`, and `activity_log()`.
 - **Models**: `PostViewStat` (Analytic), `ActivityLog` (History), `Media`, `MediaFolder`.
 - **Migrations**: Latest include `create_post_view_stats`, `create_activity_logs`, `add_metadata_to_media_table`, `create_media_folders_table`.
-- **Views**: `resources/views/admin/media/index.blade.php` (Sidebar + Grid), `show.blade.php` (Detail).
+- **Views**: 
+  - `resources/views/admin/media/index.blade.php` (Sidebar + Grid)
+  - `resources/views/admin/media/show.blade.php` (Detail view)
+  - `resources/views/admin/posts/_form.blade.php` (WordPress-style layout + TinyMCE)
+  - `resources/views/admin/pages/_form.blade.php` (WordPress-style layout + TinyMCE)
+- **TinyMCE**: `public/js/tinymce/tinymce.min.js` (GPL license)
 
 ---
 
-## 5) Handoff Prompt for Another AI
+## 5) Known Issues & Next Steps
+
+### 🔴 **Critical: Media Picker Modal Needed**
+- **Issue**: TinyMCE "Media Library" button opens new tab instead of modal
+- **Impact**: Cannot insert images into content from Media Library
+- **Solution**: Implement reusable `<x-media-picker>` component
+- **Use Cases**:
+  1. Insert images into TinyMCE content (Posts & Pages)
+  2. Select Featured Images (replace current dropdown)
+
+### 📋 **Planned Features**
+- **Media Picker Modal** (High Priority)
+- **Phase D (Media)**: Thumbnails generation (optimization)
+- **Post Scheduling**: Implement accurate scheduling (currently just `published_at` field)
+- **Comment System**: Add comments to posts with moderation queue
+- **Newsletter**: Simple subscription form & email list management
+- **Search**: Enhance frontend search (currently basic)
+
+---
+
+## 6) Handoff Prompt for Another AI
 
 **PROMPT START**
 
@@ -138,7 +183,7 @@ You are continuing a Laravel mini CMS project. Constraints:
 - UI: "Minimal Japanese / SaaS" aesthetic for Frontend, "Calm Admin" for Backend.
 
 **Current implemented modules:**
-- **Core**: Posts & Pages (CRUD, SEO, Soft Deletes).
+- **Core**: Posts & Pages (CRUD, SEO, Soft Deletes, **TinyMCE Editor**, **WordPress-style Layout**).
 - **Analytics**: Dashboard with Chart.js, KPI cards, Post View tracking (`post_view_stats`).
 - **Activity**: System-wide logging (`activity_logs` + `meta`) for audit trail.
 - **Media**: 
@@ -146,21 +191,29 @@ You are continuing a Laravel mini CMS project. Constraints:
   - **Safety**: Prevent delete if in use.
   - **Metadata**: Alt/Caption/Dimensions.
   - **Details**: Dedicated view for management.
+  - **⚠️ Missing**: Media Picker Modal for TinyMCE & Featured Image selection.
 - **SEO**: Sitemap, Robots, Canonical.
 - **Taxonomies**: Categories & Tags.
 - **Settings**: Site-wide config via `setting()` helper.
 - **Leads**: Contact form & Admin management.
 - **User Management**: RBAC (Admin/Editor), User CRUD.
 - **Frontend**: Full redesign complete. Minimalist.
+- **Editor**: TinyMCE 6 integrated (GPL) at `public/js/tinymce/`.
 
 **Database**:
-- Tables included: users, posts, pages, cat, tag, media, media_folders, settings, leads, post_view_stats, activity_logs.
+- Tables included: users, posts, pages, categories, tags, media, media_folders, settings, leads, post_view_stats, activity_logs.
 
-**NEXT TASK SUGGESTIONS:**
+**IMMEDIATE NEXT TASK:**
+- **Media Picker Modal**: Create reusable component for selecting images from Media Library
+  - Use in TinyMCE "Media Library" button (insert into content)
+  - Use for Featured Image selection (replace dropdown)
+  - Modal should show grid, search, folder filter, pagination
+  - Callback mechanism: `openMediaPicker(callback)` → returns `{id, url, alt}`
+
+**OTHER SUGGESTIONS:**
 - **Phase D (Media)**: Thumbnails generation (optimization).
-- **Post Scheduling**: Implement accurate scheduling (currently just `published_at` field, needs automated publisher or scope adjustment).
+- **Post Scheduling**: Implement accurate scheduling.
 - **Comment System**: Add comments to posts with moderation queue.
 - **Newsletter**: Simple subscription form & email list management.
-- **Search**: Enhance frontend search (currently basic).
 
 **PROMPT END**

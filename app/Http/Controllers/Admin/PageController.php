@@ -50,7 +50,11 @@ class PageController extends Controller
         $page = new Page(['status' => 'draft']);
         $media = Media::orderByDesc('id')->limit(50)->get();
 
-        return view('admin.pages.create', compact('page','media'));
+        // For media picker modal
+        $mediaFolders = \App\Models\MediaFolder::orderBy('name')->get();
+        $allMedia = Media::orderByDesc('id')->get();
+
+        return view('admin.pages.create', compact('page','media','mediaFolders','allMedia'));
     }
 
     public function store(Request $request)
@@ -82,7 +86,11 @@ class PageController extends Controller
         $page->load(['featuredImage']);
         $media = Media::orderByDesc('id')->limit(50)->get();
 
-        return view('admin.pages.edit', compact('page','media'));
+        // For media picker modal
+        $mediaFolders = \App\Models\MediaFolder::orderBy('name')->get();
+        $allMedia = Media::orderByDesc('id')->get();
+
+        return view('admin.pages.edit', compact('page','media','mediaFolders','allMedia'));
     }
 
     public function update(Request $request, Page $page)

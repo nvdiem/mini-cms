@@ -33,7 +33,7 @@
     <div class="card p-6">
       <div>
         <label class="text-sm font-medium text-text dark:text-slate-200">Content</label>
-        <textarea class="input mt-2 min-h-[400px] font-mono text-sm" name="content" placeholder="Write your content here...">{{ old('content', $post->content) }}</textarea>
+        <textarea id="content" class="input mt-2 min-h-[400px] font-mono text-sm" name="content" placeholder="Write your content here...">{{ old('content', $post->content) }}</textarea>
         @error('content') <div class="text-xs text-red-600 mt-1">{{ $message }}</div> @enderror
       </div>
     </div>
@@ -177,37 +177,98 @@
           <span class="material-icons-outlined text-lg text-green-500">image</span>
           <div class="text-sm font-semibold text-text-strong dark:text-white">Featured Image</div>
         </div>
-        <a class="text-xs text-primary hover:underline" href="{{ route('admin.media.index') }}" target="_blank">Library</a>
       </div>
 
-      @php $img = $post->featuredImage ?? null; @endphp
-      
-      @if($img)
-        <div class="mb-3">
-          <img src="{{ $img->url() }}" alt="{{ $img->alt_text }}" class="w-full h-auto rounded-lg border border-border-light dark:border-border-dark"/>
-        </div>
-      @else
-        <div class="mb-3 aspect-video rounded-lg border-2 border-dashed border-border-light dark:border-border-dark bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
-          <span class="material-icons-outlined text-4xl text-slate-300 dark:text-slate-600">image</span>
-        </div>
-      @endif
+      <input type="hidden" name="featured_image_id" id="featured_image_id" value="{{ old('featured_image_id', $post->featured_image_id) }}">
 
-      <div class="relative">
-        <select class="select text-sm" name="featured_image_id">
-          <option value="">No image</option>
-          @foreach(($media ?? collect()) as $m)
-            <option value="{{ $m->id }}" {{ (string)old('featured_image_id', $post->featured_image_id) === (string)$m->id ? 'selected' : '' }}>
-              #{{ $m->id }} — {{ Str::limit($m->original_name, 30) }}
-            </option>
-          @endforeach
-        </select>
-        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
-          <span class="material-icons-outlined text-sm" aria-hidden="true">expand_more</span>
-        </div>
+      <div id="featured_image_preview" class="mb-3">
+        @if($post->featuredImage)
+          <div class="relative group">
+            <img src="{{ $post->featuredImage->url() }}" alt="{{ $post->featuredImage->alt_text }}" class="w-full h-auto rounded-lg border border-border-light dark:border-border-dark"/>
+            <button type="button" onclick="removeFeaturedImage()" class="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" title="Remove image">
+              <span class="material-icons-outlined text-sm">close</span>
+            </button>
+          </div>
+        @else
+          <div class="aspect-video rounded-lg border-2 border-dashed border-border-light dark:border-border-dark bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
+            <span class="material-icons-outlined text-4xl text-slate-300 dark:text-slate-600">image</span>
+          </div>
+        @endif
       </div>
-      <div class="text-xs text-text-muted dark:text-slate-400 mt-2">Showing latest 50 media items.</div>
+
+      <button type="button" onclick="chooseFeaturedImage()" class="btn-secondary w-full justify-center">
+        <span class="material-icons-outlined text-[18px]">add_photo_alternate</span>
+        <span class="ml-2">Choose Image</span>
+      </button>
 
       @error('featured_image_id') <div class="text-xs text-red-600 mt-2">{{ $message }}</div> @enderror
     </div>
   </div>
 </div>
+
+{{-- ================= TINYMCE & MEDIA PICKER ================= --}}
+<x-media-picker :mediaFolders="$mediaFolders ?? collect()" :allMedia="$allMedia ?? collect()" />
+
+<script src="{{ asset('js/tinymce/tinymce.min.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  tinymce.init({
+    selector: '#content',
+    license_key: 'gpl',
+    height: 600,
+    menubar: true,
+    plugins: 'lists link code table fullscreen image',
+    toolbar: 'undo redo | blocks | bold italic | bullist numlist | link table | media | code fullscreen',
+    relative_urls: false,
+    remove_script_host: false,
+
+    // Custom media button
+    setup: function(editor) {
+      editor.ui.registry.addButton('media', {
+        text: 'Media Library',
+        icon: 'image',
+        tooltip: 'Insert from Media Library',
+        onAction: function() {
+          openMediaPicker(function(id, url, alt, width, height) {
+            let style = 'max-width: 100%; height: auto;';
+            let attrs = `src="${url}" alt="${alt}"`;
+            
+            if (width) attrs += ` width="${width}"`;
+            if (height) attrs += ` height="${height}"`;
+            
+            editor.insertContent(`<img ${attrs} style="${style}" />`);
+          });
+        }
+      });
+    }
+  });
+});
+
+// Featured Image Functions
+function chooseFeaturedImage() {
+  openMediaPicker(function(id, url, alt) {
+    // Update hidden input
+    document.getElementById('featured_image_id').value = id;
+    
+    // Update preview
+    const previewContainer = document.getElementById('featured_image_preview');
+    previewContainer.innerHTML = `
+      <div class="relative group">
+        <img src="${url}" alt="${alt}" class="w-full h-auto rounded-lg border border-border-light dark:border-border-dark"/>
+        <button type="button" onclick="removeFeaturedImage()" class="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" title="Remove image">
+          <span class="material-icons-outlined text-sm">close</span>
+        </button>
+      </div>
+    `;
+  });
+}
+
+function removeFeaturedImage() {
+  document.getElementById('featured_image_id').value = '';
+  document.getElementById('featured_image_preview').innerHTML = `
+    <div class="aspect-video rounded-lg border-2 border-dashed border-border-light dark:border-border-dark bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
+      <span class="material-icons-outlined text-4xl text-slate-300 dark:text-slate-600">image</span>
+    </div>
+  `;
+}
+</script>

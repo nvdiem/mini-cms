@@ -65,8 +65,12 @@ class PostController extends Controller
         $categories = Category::orderBy('name')->get();
         $tags = Tag::orderBy('name')->get();
         $media = Media::orderByDesc('id')->limit(50)->get();
+        
+        // For media picker modal
+        $mediaFolders = \App\Models\MediaFolder::orderBy('name')->get();
+        $allMedia = Media::orderByDesc('id')->get();
 
-        return view('admin.posts.create', compact('post','categories','tags','media'));
+        return view('admin.posts.create', compact('post','categories','tags','media','mediaFolders','allMedia'));
     }
 
     public function store(Request $request)
@@ -104,7 +108,11 @@ class PostController extends Controller
         $tags = Tag::orderBy('name')->get();
         $media = Media::orderByDesc('id')->limit(50)->get();
 
-        return view('admin.posts.edit', compact('post','categories','tags','media'));
+        // For media picker modal
+        $mediaFolders = \App\Models\MediaFolder::orderBy('name')->get();
+        $allMedia = Media::orderByDesc('id')->get();
+
+        return view('admin.posts.edit', compact('post','categories','tags','media','mediaFolders','allMedia'));
     }
 
     public function update(Request $request, Post $post)
