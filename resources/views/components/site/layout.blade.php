@@ -53,6 +53,12 @@
       if (bar) bar.style.width = scrolled + "%";
     });
   </script>
+
+  @if(isset($schema))
+    <script type="application/ld+json">
+      {!! json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+    </script>
+  @endif
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col selection:bg-primary/20 selection:text-primary">
 

@@ -2,6 +2,9 @@
   
   <article class="bg-white min-h-[60vh]">
     <header class="max-w-3xl mx-auto px-4 sm:px-6 pt-16 pb-12 text-center">
+      <div class="flex justify-center">
+        <x-breadcrumbs :items="$breadcrumbs ?? []" />
+      </div>
       <h1 class="text-3xl sm:text-5xl font-bold text-slate-900 tracking-tight leading-tight">
         {{ $page->title }}
       </h1>

@@ -175,6 +175,13 @@ This document summarizes the current state of the project and provides a handoff
   - **Header**: Integrated search bar in site navigation.
   - **Security**: Only shows published posts.
 
+  - **Security**: Only shows published posts.
+
+### 1.14 Frontend SEO & Enhancements (Sprint 6) 🚀
+- **Breadcrumbs**: Reusable component `<x-breadcrumbs>` integrated into Post/Page views.
+- **Related Posts**: Advanced logic (Tags > Categories > Latest) ensuring 4 items always show.
+- **Schema.org**: JSON-LD (Article/WebPage) injected via Controller/Layout.
+
 ### 📋 **Planned Features**
 - **Phase D (Media)**: Thumbnails generation (optimization)
 - **Post Scheduling**: Implement accurate scheduling (currently just `published_at` field)
@@ -219,6 +226,7 @@ You are continuing a Laravel mini CMS project. Constraints:
 - Tables included: users, posts, pages, categories, tags, media, media_folders, settings, leads, post_view_stats, activity_logs.
 
 **IMMEDIATE NEXT TASK:**
+- **Verify Schema.org JSON-LD**: Code is implemented but cache/view needs clearing to verify `<script>` tag in source.
 - **Phase D (Media)**: Thumbnails generation (optimization).
 - **Post Scheduling**: Implement accurate scheduling.
 

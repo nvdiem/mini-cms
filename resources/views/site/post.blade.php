@@ -3,6 +3,10 @@
   <article class="bg-white">
     <!-- Post Header -->
     <header class="max-w-3xl mx-auto px-4 sm:px-6 pt-16 pb-12 text-center">
+      <div class="flex justify-center">
+        <x-breadcrumbs :items="$breadcrumbs ?? []" />
+      </div>
+
       <div class="flex items-center justify-center gap-3 mb-6">
         @foreach($post->categories as $cat)
           <a href="#" class="text-xs font-bold uppercase tracking-wider text-primary hover:text-blue-700 transition">
