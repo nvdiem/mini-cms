@@ -4,20 +4,16 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\PagePackage;
-use App\Services\ZipExtractService;
-use App\Services\PublishService;
+use App\Services\PackageUploadService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class PageBuilderController extends Controller
 {
-    private $zipExtractor;
-    private $publisher;
+    private PackageUploadService $uploadService;
 
-    public function __construct(ZipExtractService $zipExtractor, PublishService $publisher)
+    public function __construct(PackageUploadService $uploadService)
     {
-        $this->zipExtractor = $zipExtractor;
-        $this->publisher = $publisher;
+        $this->uploadService = $uploadService;
     }
 
     /**
@@ -41,113 +37,40 @@ class PageBuilderController extends Controller
     }
 
     /**
-     * Store new package
+     * Store new package - PR-06: Refactored to use PackageUploadService
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'slug' => ['required', 'string', 'max:255', 'unique:page_packages,slug', 'regex:/^[a-z0-9-]+$/'],
-            'zip_file' => ['required', 'file', 'mimes:zip', 'max:20480'], // 20MB
+            'zip_file' => ['required', 'file', 'mimes:zip', 'max:20480'],
             'wire_contact' => ['boolean'],
             'wire_selector' => ['nullable', 'string', 'max:255'],
         ]);
 
-        try {
-            // Create package record first to get ID
-            $package = new PagePackage();
-            $package->name = $validated['name'];
-            $package->slug = $validated['slug'];
-            $package->wire_contact = $request->boolean('wire_contact', true);
-            $package->wire_selector = $validated['wire_selector'] ?? '[data-contact-form],#contactForm,.js-contact';
-            $package->created_by = auth()->id();
-            $package->version = 'pending';
-            $package->zip_path = 'pending';
-            $package->public_dir = 'pending';
-            $package->save();
+        $result = $this->uploadService->upload(
+            [
+                'name' => $validated['name'],
+                'slug' => $validated['slug'],
+                'wire_contact' => $request->boolean('wire_contact', true),
+                'wire_selector' => $validated['wire_selector'] ?? null,
+            ],
+            $request->file('zip_file'),
+            auth()->id()
+        );
 
-            // Store ZIP file
-            $zipPath = storage_path("app/pagebuilder/zips/{$package->id}.zip");
-            $zipDir = dirname($zipPath);
-            if (!is_dir($zipDir)) {
-                mkdir($zipDir, 0755, true);
-            }
-            $request->file('zip_file')->move($zipDir, "{$package->id}.zip");
-
-            // Extract ZIP to temporary directory
-            $tempExtractPath = storage_path("app/pagebuilder/temp/{$package->id}");
-            $extractResult = $this->zipExtractor->extract($zipPath, $tempExtractPath);
-
-            if (!$extractResult['success']) {
-                // Delete package and ZIP on failure
-                $package->delete();
-                @unlink($zipPath);
-                return back()->withErrors(['zip_file' => $extractResult['error']]);
-            }
-
-            // Verify entry file exists
-            if (!$this->zipExtractor->verifyEntryFile($tempExtractPath, 'index.html')) {
-                $package->delete();
-                @unlink($zipPath);
-                $this->deleteDirectory($tempExtractPath);
-                return back()->withErrors(['zip_file' => 'Entry file (index.html) not found in ZIP']);
-            }
-
-            // Generate version and publish
-            $version = $this->publisher->generateVersion($zipPath);
-            $publishResult = $this->publisher->publish(
-                $tempExtractPath,
-                $package->slug,
-                $version,
-                $package->wire_contact,
-                $package->wire_selector
-            );
-
-            if (!$publishResult['success']) {
-                $package->delete();
-                @unlink($zipPath);
-                $this->deleteDirectory($tempExtractPath);
-                return back()->withErrors(['zip_file' => $publishResult['error']]);
-            }
-
-            // Update package with final details
-            $package->version = $version;
-            $package->zip_path = "pagebuilder/zips/{$package->id}.zip";
-            $package->public_dir = $publishResult['public_dir'];
-            $package->is_active = true; // First package is active by default
-            $package->save();
-
-            // Clean up temp directory
-            $this->deleteDirectory($tempExtractPath);
-
-            // Log activity
-            activity_log(
-                'pagebuilder.created',
-                $package,
-                "Created page package '{$package->name}' (slug: {$package->slug})"
-            );
-
-            return redirect()
-                ->route('admin.page-builder.show', $package->id)
-                ->with('toast', [
-                    'tone' => 'success',
-                    'title' => 'Package created!',
-                    'message' => "Page package '{$package->name}' has been published successfully."
-                ]);
-
-        } catch (\Exception $e) {
-            if (isset($package) && $package->exists) {
-                $package->delete();
-            }
-            if (isset($zipPath) && file_exists($zipPath)) {
-                @unlink($zipPath);
-            }
-            if (isset($tempExtractPath) && is_dir($tempExtractPath)) {
-                $this->deleteDirectory($tempExtractPath);
-            }
-
-            return back()->withErrors(['zip_file' => 'Upload failed: ' . $e->getMessage()]);
+        if ($result->failed()) {
+            return back()->withErrors(['zip_file' => $result->error]);
         }
+
+        return redirect()
+            ->route('admin.page-builder.show', $result->package->id)
+            ->with('toast', [
+                'tone' => 'success',
+                'title' => 'Package created!',
+                'message' => "Page package '{$result->package->name}' has been published successfully."
+            ]);
     }
 
     /**
@@ -187,21 +110,5 @@ class PageBuilderController extends Controller
             'message' => "Package '{$package->name}' is now active."
         ]);
     }
-
-    /**
-     * Delete directory recursively
-     */
-    private function deleteDirectory($dir)
-    {
-        if (!is_dir($dir)) {
-            return;
-        }
-
-        $files = array_diff(scandir($dir), ['.', '..']);
-        foreach ($files as $file) {
-            $path = $dir . '/' . $file;
-            is_dir($path) ? $this->deleteDirectory($path) : unlink($path);
-        }
-        rmdir($dir);
-    }
 }
+

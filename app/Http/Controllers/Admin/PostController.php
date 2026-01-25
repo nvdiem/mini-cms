@@ -81,7 +81,8 @@ class PostController extends Controller
         $post->title = $data['title'];
         $post->slug = $this->uniqueSlug($data['slug'] ?: Str::slug($data['title']));
         $post->excerpt = $data['excerpt'] ?? null;
-        $post->content = $data['content'] ?? '';
+        // PR-03: Sanitize HTML content to prevent XSS
+        $post->content = app(\App\Services\HtmlSanitizerService::class)->sanitize($data['content'] ?? '');
         $post->status = $data['status'];
         $post->published_at = $data['published_at'] ?? null;
         $post->author_id = Auth::id();
@@ -122,7 +123,8 @@ class PostController extends Controller
         $post->title = $data['title'];
         $post->slug = $this->uniqueSlug($data['slug'] ?: Str::slug($data['title']), $post->id);
         $post->excerpt = $data['excerpt'] ?? null;
-        $post->content = $data['content'] ?? '';
+        // PR-03: Sanitize HTML content to prevent XSS
+        $post->content = app(\App\Services\HtmlSanitizerService::class)->sanitize($data['content'] ?? '');
         $post->status = $data['status'];
         $post->published_at = $data['published_at'] ?? null;
         $post->featured_image_id = $data['featured_image_id'] ?? null;

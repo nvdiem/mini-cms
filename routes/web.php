@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\PageBuilderController;
+use App\Http\Controllers\InstallerController;
 
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\PublicLeadController;
@@ -20,9 +21,19 @@ use App\Http\Controllers\PublicPageBuilderController;
 
 use App\Http\Controllers\ContactController;
 
-// Auth
+// Installer Routes (must be before other routes)
+Route::prefix('install')->name('installer.')->group(function() {
+    Route::get('/', [InstallerController::class, 'requirements'])->name('requirements');
+    Route::get('/database', [InstallerController::class, 'database'])->name('database');
+    Route::post('/database', [InstallerController::class, 'databaseStore'])->name('database.store');
+    Route::get('/admin', [InstallerController::class, 'admin'])->name('admin');
+    Route::post('/admin', [InstallerController::class, 'adminStore'])->name('admin.store');
+    Route::get('/complete', [InstallerController::class, 'complete'])->name('complete');
+});
+
+// Auth (rate-limited to prevent brute force)
 Route::get('login', [AuthController::class, 'showLogin'])->name('login');
-Route::post('login', [AuthController::class, 'login']);
+Route::post('login', [AuthController::class, 'login'])->middleware('throttle:5,1');
 Route::post('logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
 // SEO Routes

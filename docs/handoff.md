@@ -198,6 +198,22 @@ This document summarizes the current state of the project and provides a handoff
 - **Admin UI**: List, Upload, Detail views with status badges (Active, Wired).
 - **Activity Logging**: All package actions logged with metadata.
 
+### 1.16 Production Readiness (Sprint 8) 📦
+- **Web Installer**: 4-step installation wizard at `/install`:
+  - Step 1: Server requirements check (PHP, extensions, writable dirs)
+  - Step 2: Database configuration with connection test
+  - Step 3: Admin account and site settings creation
+  - Step 4: Complete with credentials display
+  - Auto-generates `.env` file with APP_KEY
+  - Locks installer after completion (`storage/installed`)
+- **Documentation**:
+  - `README.md`: Product-focused overview
+  - `INSTALL.md`: Detailed installation guide (shared hosting, VPS)
+  - `CHANGELOG.md`: Version history
+  - `LICENSE.md`: Commercial license terms
+- **Build System**: PowerShell script `build.ps1` creates release ZIP
+
+
 ### 📋 **Planned Features**
 - **Phase D (Media)**: Thumbnails generation (optimization)
 - **Post Scheduling**: Implement accurate scheduling (currently just `published_at` field)

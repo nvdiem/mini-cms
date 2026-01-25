@@ -40,7 +40,7 @@ class AuthController extends Controller
         }
 
         return back()
-            ->withErrors(['email' => 'Email hoặc mật khẩu không đúng'])
+            ->withErrors(['email' => 'Invalid credentials. Please try again.'])
             ->onlyInput('email');
     }
 
