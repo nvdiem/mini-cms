@@ -11,8 +11,11 @@ use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\PageBuilderController;
 
 use App\Http\Controllers\SiteController;
+use App\Http\Controllers\PublicLeadController;
+use App\Http\Controllers\PublicPageBuilderController;
 
 
 use App\Http\Controllers\ContactController;
@@ -63,6 +66,13 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function(){
     Route::post('leads/{lead}/status', [LeadController::class, 'updateStatus'])->name('leads.status');
     Route::post('leads/bulk', [LeadController::class, 'bulk'])->name('leads.bulk');
 
+    // Page Builder
+    Route::get('page-builder', [PageBuilderController::class, 'index'])->name('page-builder.index');
+    Route::get('page-builder/create', [PageBuilderController::class, 'create'])->name('page-builder.create');
+    Route::post('page-builder', [PageBuilderController::class, 'store'])->name('page-builder.store');
+    Route::get('page-builder/{id}', [PageBuilderController::class, 'show'])->name('page-builder.show');
+    Route::post('page-builder/{id}/activate', [PageBuilderController::class, 'activate'])->name('page-builder.activate');
+
     // Admin Only
     Route::middleware('admin')->group(function(){
         // Settings
@@ -84,3 +94,9 @@ Route::post('/contact', [ContactController::class, 'store'])->name('contact.stor
 
 // Search
 Route::get('/search', [App\Http\Controllers\SearchController::class, 'index'])->name('site.search');
+
+// Page Builder Public Routes
+Route::post('/lead', [PublicLeadController::class, 'store'])
+    ->middleware('throttle:30,1')
+    ->name('lead.store');
+Route::get('/b/{slug}', [PublicPageBuilderController::class, 'show'])->name('pagebuilder.show');

@@ -224,8 +224,9 @@
     background-color: rgba(255, 255, 255, 0.05);
   }
   .tab-btn.active {
-    background-color: var(--c-primary);
-    color: white;
+    background-color: rgb(var(--c-primary) / 0.1);
+    color: rgb(var(--c-primary));
+    font-weight: 600;
   }
 </style>
 HTML;

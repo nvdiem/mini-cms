@@ -1,7 +1,7 @@
 <x-admin.layout title="Settings">
     <div class="flex items-center justify-between mb-6">
         <h1 class="text-2xl font-bold text-slate-800">User Management</h1>
-        <a href="{{ route('admin.users.create') }}" class="px-4 py-2 bg-slate-900 text-white font-medium rounded-lg hover:bg-slate-800 transition shadow-sm flex items-center gap-2">
+        <a href="{{ route('admin.users.create') }}" class="btn-primary flex items-center gap-2">
             <span class="material-icons-outlined text-[18px]">add</span>
             New User
         </a>

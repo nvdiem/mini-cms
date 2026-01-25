@@ -113,6 +113,8 @@ This document summarizes the current state of the project and provides a handoff
 - `GET /contact` → `contact.index`
 - `POST /contact` → `contact.store`
 - `GET /sitemap.xml`, `GET /robots.txt`
+- `GET /b/{slug}` → `pagebuilder.show` (Serve static page packages)
+- `POST /lead` → `lead.store` (PageBuilder forms, throttle:30,1)
 
 ### Auth:
 - `GET /login`, `POST /login`, `POST /logout`
@@ -121,6 +123,7 @@ This document summarizes the current state of the project and provides a handoff
 - `dashboard` (`/admin`) - Analytics Home
 - `posts`, `pages`, `categories`, `tags`, `leads`, `review`
 - `media` (Full resource with folders support + detail view)
+- `page-builder` (Upload, List, Show, Activate static HTML packages)
 
 ### Admin (Protected - Admin Only):
 - `settings`: Index, Update
@@ -140,20 +143,24 @@ This document summarizes the current state of the project and provides a handoff
 - `leads` (name, email, phone, message, status, source)
 - `post_view_stats` (post_id, date, views) [Unique(post_id, date)]
 - `activity_logs` (user_id, type, subject_id, subject_type, message, **meta**)
+- `page_packages` (id, name, slug, zip_path, public_dir, version, entry_file, is_active, wire_contact, wire_selector, created_by, timestamps)
 
 ---
 
 ## 4) Code/Folder Notes
 
 - **Helpers**: `app/helpers.php` contains `setting()`, `setting_set()`, and `activity_log()`.
-- **Models**: `PostViewStat` (Analytic), `ActivityLog` (History), `Media`, `MediaFolder`.
-- **Migrations**: Latest include `create_post_view_stats`, `create_activity_logs`, `add_metadata_to_media_table`, `create_media_folders_table`.
+- **Models**: `PostViewStat` (Analytic), `ActivityLog` (History), `Media`, `MediaFolder`, `PagePackage`.
+- **Services**: `ZipExtractService` (safe ZIP extraction), `PublishService` (publish to public + inject JS).
+- **Migrations**: Latest include `create_post_view_stats`, `create_activity_logs`, `add_metadata_to_media_table`, `create_media_folders_table`, `create_page_packages_table`.
 - **Views**: 
   - `resources/views/admin/media/index.blade.php` (Sidebar + Grid)
   - `resources/views/admin/media/show.blade.php` (Detail view)
   - `resources/views/admin/posts/_form.blade.php` (WordPress-style layout + TinyMCE)
   - `resources/views/admin/pages/_form.blade.php` (WordPress-style layout + TinyMCE)
+  - `resources/views/admin/page-builder/` (index, create, show)
 - **TinyMCE**: `public/js/tinymce/tinymce.min.js` (GPL license)
+- **Public Assets**: `public/pagebuilder/{slug}/{version}/` (Published static sites)
 
 ---
 
@@ -181,6 +188,15 @@ This document summarizes the current state of the project and provides a handoff
 - **Breadcrumbs**: Reusable component `<x-breadcrumbs>` integrated into Post/Page views.
 - **Related Posts**: Advanced logic (Tags > Categories > Latest) ensuring 4 items always show.
 - **Schema.org**: JSON-LD (Article/WebPage) injected via Controller/Layout.
+
+### 1.15 Page Builder (Sprint 7) 🎨
+- **Upload & Publish**: Admin can upload ZIP files containing static HTML/CSS/JS sites.
+- **Safe Extraction**: Comprehensive security (MIME validation, extension allowlist/blocklist, path traversal prevention, size limits).
+- **Contact Form Wiring**: Automatic JavaScript injection to connect static forms to CMS leads.
+- **Public Serving**: Static sites served at `/b/{slug}` with version management.
+- **Lead Integration**: Public endpoint `/lead` (no CSRF) with rate limiting + honeypot protection.
+- **Admin UI**: List, Upload, Detail views with status badges (Active, Wired).
+- **Activity Logging**: All package actions logged with metadata.
 
 ### 📋 **Planned Features**
 - **Phase D (Media)**: Thumbnails generation (optimization)
@@ -221,12 +237,15 @@ You are continuing a Laravel mini CMS project. Constraints:
 - **Frontend**: Full redesign complete. Minimalist.
   - **Search**: Advanced search with highlighting & snippets.
 - **Editor**: TinyMCE 6 integrated (GPL) at `public/js/tinymce/`.
+- **Page Builder**: Upload static HTML sites (ZIP), auto-inject contact forms, serve at `/b/{slug}`.
+  - **Security**: Safe extraction (allowlist, blocklist, path traversal prevention, size limits).
+  - **Lead Integration**: Public endpoint `/lead` with rate limiting + honeypot.
 
 **Database**:
-- Tables included: users, posts, pages, categories, tags, media, media_folders, settings, leads, post_view_stats, activity_logs.
+- Tables included: users, posts, pages, categories, tags, media, media_folders, settings, leads, post_view_stats, activity_logs, page_packages.
 
 **IMMEDIATE NEXT TASK:**
-- **Verify Schema.org JSON-LD**: Code is implemented but cache/view needs clearing to verify `<script>` tag in source.
+- **Test Page Builder**: Upload a test ZIP package and verify contact form integration.
 - **Phase D (Media)**: Thumbnails generation (optimization).
 - **Post Scheduling**: Implement accurate scheduling.
 

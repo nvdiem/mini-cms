@@ -62,7 +62,7 @@
                 </div>
 
                 <div class="pt-6 border-t border-slate-100 flex justify-end">
-                    <button type="submit" class="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-lg transition shadow-sm">
+                    <button type="submit" class="btn-primary">
                         Update User
                     </button>
                 </div>
