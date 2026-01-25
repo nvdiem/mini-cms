@@ -103,7 +103,7 @@ class DemoContentSeeder extends Seeder
     }
 
     /**
-     * 3️⃣ Media Library (placeholder records)
+     * 3️⃣ Media Library (placeholder records with generated images)
      */
     private function seedMedia(): void
     {
@@ -112,43 +112,52 @@ class DemoContentSeeder extends Seeder
         $folders = MediaFolder::all()->keyBy('name');
         $admin = $this->users['admin'];
 
+        // Ensure directory exists
+        $path = storage_path('app/public/uploads/demo');
+        if (!file_exists($path)) {
+            mkdir($path, 0755, true);
+        }
+
         $mediaItems = [
             // Brand folder
-            ['folder' => 'Brand', 'name' => 'logo.png', 'alt' => 'Company Logo', 'w' => 200, 'h' => 60],
-            ['folder' => 'Brand', 'name' => 'favicon.ico', 'alt' => 'Favicon', 'w' => 32, 'h' => 32],
-            ['folder' => 'Brand', 'name' => 'hero-banner.jpg', 'alt' => 'Hero Banner Image', 'w' => 1920, 'h' => 600],
+            ['folder' => 'Brand', 'name' => 'logo.png', 'alt' => 'Company Logo', 'w' => 200, 'h' => 60, 'color' => [50, 50, 50]],
+            ['folder' => 'Brand', 'name' => 'favicon.ico', 'alt' => 'Favicon', 'w' => 32, 'h' => 32, 'color' => [50, 50, 50]],
+            ['folder' => 'Brand', 'name' => 'hero-banner.jpg', 'alt' => 'Hero Banner Image', 'w' => 1200, 'h' => 400, 'color' => [41, 128, 185]],
             
-            // Blog folder
-            ['folder' => 'Blog', 'name' => 'career-growth.jpg', 'alt' => 'Career Growth Illustration', 'w' => 1200, 'h' => 630],
-            ['folder' => 'Blog', 'name' => 'interview-tips.jpg', 'alt' => 'Job Interview Setting', 'w' => 1200, 'h' => 630],
-            ['folder' => 'Blog', 'name' => 'resume-writing.jpg', 'alt' => 'Resume and Laptop', 'w' => 1200, 'h' => 630],
-            ['folder' => 'Blog', 'name' => 'soft-skills.jpg', 'alt' => 'Team Collaboration', 'w' => 1200, 'h' => 630],
-            ['folder' => 'Blog', 'name' => 'remote-work.jpg', 'alt' => 'Working From Home', 'w' => 1200, 'h' => 630],
-            ['folder' => 'Blog', 'name' => 'leadership.jpg', 'alt' => 'Leadership Meeting', 'w' => 1200, 'h' => 630],
-            ['folder' => 'Blog', 'name' => 'networking.jpg', 'alt' => 'Professional Networking Event', 'w' => 1200, 'h' => 630],
-            ['folder' => 'Blog', 'name' => 'skill-development.jpg', 'alt' => 'Learning New Skills', 'w' => 1200, 'h' => 630],
-            ['folder' => 'Blog', 'name' => 'japan-career.jpg', 'alt' => 'Tokyo Office Building', 'w' => 1200, 'h' => 630],
-            ['folder' => 'Blog', 'name' => 'it-career.jpg', 'alt' => 'Developer at Work', 'w' => 1200, 'h' => 630],
+            // Blog folder (10 items)
+            ['folder' => 'Blog', 'name' => 'career-growth.jpg', 'alt' => 'Career Growth', 'w' => 800, 'h' => 600, 'color' => [46, 204, 113]],
+            ['folder' => 'Blog', 'name' => 'interview-tips.jpg', 'alt' => 'Interview Tips', 'w' => 800, 'h' => 600, 'color' => [155, 89, 182]],
+            ['folder' => 'Blog', 'name' => 'resume-writing.jpg', 'alt' => 'Resume Writing', 'w' => 800, 'h' => 600, 'color' => [52, 152, 219]],
+            ['folder' => 'Blog', 'name' => 'soft-skills.jpg', 'alt' => 'Soft Skills', 'w' => 800, 'h' => 600, 'color' => [241, 196, 15]],
+            ['folder' => 'Blog', 'name' => 'remote-work.jpg', 'alt' => 'Remote Work', 'w' => 800, 'h' => 600, 'color' => [230, 126, 34]],
+            ['folder' => 'Blog', 'name' => 'leadership.jpg', 'alt' => 'Leadership', 'w' => 800, 'h' => 600, 'color' => [231, 76, 60]],
+            ['folder' => 'Blog', 'name' => 'networking.jpg', 'alt' => 'Networking', 'w' => 800, 'h' => 600, 'color' => [26, 188, 156]],
+            ['folder' => 'Blog', 'name' => 'skill-development.jpg', 'alt' => 'Skills', 'w' => 800, 'h' => 600, 'color' => [52, 73, 94]],
+            ['folder' => 'Blog', 'name' => 'japan-career.jpg', 'alt' => 'Japan Career', 'w' => 800, 'h' => 600, 'color' => [192, 57, 43]],
+            ['folder' => 'Blog', 'name' => 'it-career.jpg', 'alt' => 'IT Career', 'w' => 800, 'h' => 600, 'color' => [142, 68, 173]],
             
             // Team folder
-            ['folder' => 'Team', 'name' => 'team-photo.jpg', 'alt' => 'Our Team', 'w' => 1200, 'h' => 800],
-            ['folder' => 'Team', 'name' => 'sarah-johnson.jpg', 'alt' => 'Sarah Johnson - CEO', 'w' => 400, 'h' => 400],
-            ['folder' => 'Team', 'name' => 'michael-chen.jpg', 'alt' => 'Michael Chen - Career Consultant', 'w' => 400, 'h' => 400],
-            ['folder' => 'Team', 'name' => 'emily-parker.jpg', 'alt' => 'Emily Parker - Training Specialist', 'w' => 400, 'h' => 400],
+            ['folder' => 'Team', 'name' => 'team-photo.jpg', 'alt' => 'Our Team', 'w' => 1200, 'h' => 600, 'color' => [127, 140, 141]],
+            ['folder' => 'Team', 'name' => 'sarah-johnson.jpg', 'alt' => 'Sarah Johnson', 'w' => 400, 'h' => 400, 'color' => [243, 156, 18]],
+            ['folder' => 'Team', 'name' => 'michael-chen.jpg', 'alt' => 'Michael Chen', 'w' => 400, 'h' => 400, 'color' => [39, 174, 96]],
+            ['folder' => 'Team', 'name' => 'emily-parker.jpg', 'alt' => 'Emily Parker', 'w' => 400, 'h' => 400, 'color' => [41, 128, 185]],
             
             // Landing folder
-            ['folder' => 'Landing', 'name' => 'consultation-hero.jpg', 'alt' => 'Career Consultation Service', 'w' => 1920, 'h' => 800],
-            ['folder' => 'Landing', 'name' => 'testimonial-bg.jpg', 'alt' => 'Testimonial Background', 'w' => 1920, 'h' => 600],
-            ['folder' => 'Landing', 'name' => 'cta-background.jpg', 'alt' => 'Call to Action Background', 'w' => 1920, 'h' => 400],
+            ['folder' => 'Landing', 'name' => 'consultation-hero.jpg', 'alt' => 'Consultation', 'w' => 1920, 'h' => 600, 'color' => [44, 62, 80]],
+            ['folder' => 'Landing', 'name' => 'testimonial-bg.jpg', 'alt' => 'Testimonials', 'w' => 1920, 'h' => 400, 'color' => [149, 165, 166]],
+            ['folder' => 'Landing', 'name' => 'cta-background.jpg', 'alt' => 'CTA Background', 'w' => 1920, 'h' => 400, 'color' => [22, 160, 133]],
         ];
 
         foreach ($mediaItems as $item) {
+            // Generate placeholder image (SVG) and get the actual filename (.svg)
+            $newFilename = $this->generatePlaceholderImage($path . '/' . $item['name'], $item['w'], $item['h'], $item['color'], $item['alt']);
+
             $media = Media::create([
                 'disk' => 'public',
-                'path' => 'uploads/demo/' . $item['name'],
-                'original_name' => $item['name'],
-                'mime' => Str::endsWith($item['name'], '.png') ? 'image/png' : 'image/jpeg',
-                'size' => rand(50000, 500000),
+                'path' => 'uploads/demo/' . $newFilename, // Use the .svg filename
+                'original_name' => $item['name'], // Keep original name for display
+                'mime' => 'image/svg+xml', 
+                'size' => filesize($path . '/' . $newFilename),
                 'uploaded_by' => $admin->id,
                 'alt_text' => $item['alt'],
                 'caption' => $item['alt'],
@@ -156,8 +165,36 @@ class DemoContentSeeder extends Seeder
                 'height' => $item['h'],
                 'folder_id' => $folders[$item['folder']]->id ?? null,
             ]);
+            
+            // Map original name to new media object so other seeders can find it
             $this->media[$item['name']] = $media;
         }
+    }
+
+    /**
+     * Generate a simple placeholder image using SVG (No GD required)
+     */
+    private function generatePlaceholderImage($path, $width, $height, $color, $text)
+    {
+        // Convert array color to hex
+        $hex = sprintf("#%02x%02x%02x", $color[0], $color[1], $color[2]);
+        
+        $svg = <<<SVG
+<svg width="{$width}" height="{$height}" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100%" height="100%" fill="{$hex}"/>
+  <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="24" fill="white" text-anchor="middle" dy=".3em">{$text}</text>
+</svg>
+SVG;
+        
+        // Actually, if we declare name as .jpg but content is SVG, browsers like Chrome MIGHT render it or show broken.
+        // It is safer to actually rename the files to .svg in the seed process.
+        // Let's force the path extension to be .svg
+        $path = preg_replace('/\.(jpg|jpeg|png)$/i', '.svg', $path);
+        
+        file_put_contents($path, $svg);
+        
+        // Return the new filename
+        return basename($path);
     }
 
     /**
