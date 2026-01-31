@@ -136,10 +136,35 @@
               </button>
             </form>
           @endif
-          <a href="{{ route('admin.leads.index') }}?source=pagebuilder:{{ $package->slug }}" class="btn-soft w-full justify-center">
+            <a href="{{ route('admin.leads.index') }}?source=pagebuilder:{{ $package->slug }}" class="btn-soft w-full justify-center">
             <span class="material-icons-outlined text-sm mr-2">mail</span>
             View Leads
           </a>
+          
+          <div class="border-t border-border-light dark:border-border-dark my-4 pt-4">
+               <h4 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Update Package</h4>
+               <form action="{{ route('admin.page-builder.update', $package->id) }}" method="POST" enctype="multipart/form-data">
+                   @csrf
+                   @method('PUT')
+                   <div class="mb-3">
+                       <input type="file" name="zip_file" accept=".zip" required class="block w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+                   </div>
+                   <button type="submit" class="btn w-full btn-soft justify-center text-xs">
+                       <span class="material-icons-outlined text-sm mr-1">upload</span> Overwrite Version
+                   </button>
+               </form>
+          </div>
+
+          <div class="border-t border-border-light dark:border-border-dark my-4 pt-4">
+              <form action="{{ route('admin.page-builder.destroy', $package->id) }}" method="POST" onsubmit="return confirm('WARNING: This will permanently delete this package and all associated files. This action cannot be undone.');">
+                  @csrf
+                  @method('DELETE')
+                  <button type="submit" class="btn w-full btn-danger justify-center">
+                      <span class="material-icons-outlined text-sm mr-2">delete</span>
+                      Delete Package
+                  </button>
+              </form>
+          </div>
         </div>
       </div>
 

@@ -110,5 +110,50 @@ class PageBuilderController extends Controller
             'message' => "Package '{$package->name}' is now active."
         ]);
     }
+    /**
+     * Update/Overwrite package with new ZIP
+     */
+    public function update(Request $request, $id)
+    {
+        $package = PagePackage::findOrFail($id);
+
+        $request->validate([
+            'zip_file' => ['required', 'file', 'mimes:zip', 'max:20480'],
+        ]);
+
+        $result = $this->uploadService->update($package, $request->file('zip_file'));
+
+        if ($result->failed()) {
+            return back()->with('toast', [
+                'tone' => 'danger',
+                'title' => 'Update failed',
+                'message' => $result->error
+            ]);
+        }
+
+        return back()->with('toast', [
+            'tone' => 'success',
+            'title' => 'Package updated!',
+            'message' => "Successfully updated package '{$package->name}' with new version."
+        ]);
+    }
+
+    /**
+     * Delete package
+     */
+    public function destroy($id)
+    {
+        $package = PagePackage::findOrFail($id);
+        
+        $this->uploadService->delete($package);
+
+        return redirect()
+            ->route('admin.page-builder.index')
+            ->with('toast', [
+                'tone' => 'success',
+                'title' => 'Package deleted',
+                'message' => "Package '{$package->name}' has been completely removed."
+            ]);
+    }
 }
 

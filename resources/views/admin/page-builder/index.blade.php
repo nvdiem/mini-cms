@@ -91,6 +91,13 @@
                         </button>
                       </form>
                     @endif
+                    <form action="{{ route('admin.page-builder.destroy', $package) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this package? This action cannot be undone.');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn-xs btn-ghost text-red-600" title="Delete">
+                          <span class="material-icons-outlined text-sm">delete</span>
+                        </button>
+                    </form>
                   </div>
                 </td>
               </tr>

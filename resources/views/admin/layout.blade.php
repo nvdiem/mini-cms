@@ -114,16 +114,11 @@
         Dashboard
       </a>
 
-      <p class="px-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-4">Content</p>
+      <p class="px-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-4">Content Management</p>
 
       <a class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors {{ request()->is('admin/posts*') ? 'bg-primary/10 text-primary dark:bg-primary/15' : '' }}" href="{{ route('admin.posts.index') }}">
         <span class="material-icons-outlined mr-3 text-[20px] {{ request()->is('admin/posts*') ? 'text-primary' : 'text-slate-400 group-hover:text-slate-500 dark:text-slate-500 dark:group-hover:text-slate-300' }}" aria-hidden="true">article</span>
         Posts
-      </a>
-
-      <a class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors {{ request()->is('admin/pages*') ? 'bg-primary/10 text-primary dark:bg-primary/15' : '' }}" href="{{ route('admin.pages.index') }}">
-        <span class="material-icons-outlined mr-3 text-[20px] {{ request()->is('admin/pages*') ? 'text-primary' : 'text-slate-400 group-hover:text-slate-500 dark:text-slate-500 dark:group-hover:text-slate-300' }}" aria-hidden="true">description</span>
-        Pages
       </a>
 
       <a class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors {{ request()->is('admin/categories*') ? 'bg-primary/10 text-primary dark:bg-primary/15' : '' }}" href="{{ route('admin.categories.index') }}">
@@ -146,18 +141,27 @@
         Review Queue
       </a>
 
+      <p class="px-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-6">Pages & Structure</p>
+
+      <a class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors {{ request()->is('admin/pages*') ? 'bg-primary/10 text-primary dark:bg-primary/15' : '' }}" href="{{ route('admin.pages.index') }}">
+        <span class="material-icons-outlined mr-3 text-[20px] {{ request()->is('admin/pages*') ? 'text-primary' : 'text-slate-400 group-hover:text-slate-500 dark:text-slate-500 dark:group-hover:text-slate-300' }}" aria-hidden="true">description</span>
+        Pages
+      </a>
+
       <a class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors {{ request()->is('admin/page-builder*') ? 'bg-primary/10 text-primary dark:bg-primary/15' : '' }}" href="{{ route('admin.page-builder.index') }}">
         <span class="material-icons-outlined mr-3 text-[20px] {{ request()->is('admin/page-builder*') ? 'text-primary' : 'text-slate-400 group-hover:text-slate-500 dark:text-slate-500 dark:group-hover:text-slate-300' }}" aria-hidden="true">web</span>
         Page Builder
       </a>
 
-      <p class="px-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-6">Leads</p>
+      <p class="px-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-6">Audience & CRM</p>
       <a class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors {{ request()->is('admin/leads*') ? 'bg-primary/10 text-primary dark:bg-primary/15' : '' }}" href="{{ route('admin.leads.index') }}">
         <span class="material-icons-outlined mr-3 text-[20px] {{ request()->is('admin/leads*') ? 'text-primary' : 'text-slate-400 group-hover:text-slate-500 dark:text-slate-500 dark:group-hover:text-slate-300' }}" aria-hidden="true">people</span>
         Leads
       </a>
-
-
+      <a class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors {{ request()->is('admin/support*') ? 'bg-primary/10 text-primary dark:bg-primary/15' : '' }}" href="{{ route('admin.support.index') }}">
+        <span class="material-icons-outlined mr-3 text-[20px] {{ request()->is('admin/support*') ? 'text-primary' : 'text-slate-400 group-hover:text-slate-500 dark:text-slate-500 dark:group-hover:text-slate-300' }}" aria-hidden="true">support_agent</span>
+        Support
+      </a>
 
       @if(auth()->user()->role === 'admin')
       <p class="px-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-6">System</p>

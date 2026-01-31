@@ -1,4 +1,4 @@
-# Mini CMS (Laravel + Blade, No NPM) — Project Status & Handoff (as of 2026-01-21)
+# Mini CMS (Laravel + Blade, No NPM) — Project Status & Handoff (as of 2026-01-28)
 
 This document summarizes the current state of the project and provides a handoff prompt so another AI can continue the work seamlessly.
 
@@ -97,6 +97,30 @@ This document summarizes the current state of the project and provides a handoff
 - **Leads**: Contact form submissions + Status workflow + **Logging**.
 - **Settings**: Site configurations (Global) + **Logging**.
 
+### 1.17 Chat Support Module (Sprint 9 & 9.1) 💬
+- **Guest Widget**: Floating chat button (bottom-right) on all public pages.
+  - First message form (name, optional email, message).
+  - **Real-time**: Near-instant message delivery via **SSÉ** (Server-Sent Events).
+  - **Fallback**: Automatically degrades to polling (4s) if connection fails.
+  - Token stored in localStorage for session persistence.
+- **Admin Inbox**: `/admin/support` - List all conversations with search/filter.
+  - Status filter (Open/Pending/Closed).
+  - Responsive table/card views.
+- **Conversation View**: `/admin/support/{id}` - Chat timeline with reply box.
+  - **Real-time**: SSE integration for messages and status updates.
+  - Status auto-updates (e.g. if visitor replies, status changes to Open instantly).
+- **Status Rules**:
+  - Visitor message → `open`
+  - Agent reply → `pending`
+  - Agent can manually set `closed`.
+  - Visitor message while closed → auto reopen to `open`.
+- **Session Reset**: 72h timeout adds system message "--- New session started ---".
+- **Security**:
+  - CSRF exempt for public endpoints.
+  - Throttle: first-message (10/min), send (12/min), poll (60/min), stream (60/min).
+  - Honeypot field protection.
+- **Activity Logging**: All key actions logged.
+
 ### 1.11 Frontend Redesign
 - **Aesthetic**: Minimalist, whitespace-driven, Slate-50 palette.
 - **Components**: Hero, Featured Post, Grid, Related Posts, Contact Form.
@@ -115,6 +139,9 @@ This document summarizes the current state of the project and provides a handoff
 - `GET /sitemap.xml`, `GET /robots.txt`
 - `GET /b/{slug}` → `pagebuilder.show` (Serve static page packages)
 - `POST /lead` → `lead.store` (PageBuilder forms, throttle:30,1)
+- `POST /support/first-message` → Guest starts chat (throttle:10,1)
+- `POST /support/messages` → Guest sends message (throttle:12,1)
+- `GET /support/messages` → Guest polls messages (throttle:60,1)
 
 ### Auth:
 - `GET /login`, `POST /login`, `POST /logout`
@@ -128,6 +155,13 @@ This document summarizes the current state of the project and provides a handoff
 ### Admin (Protected - Admin Only):
 - `settings`: Index, Update
 - `users`: Index, Create, Store, Edit, Update, Toggle
+
+### Admin (Support - Admin/Editor):
+- `GET /admin/support` → Inbox list
+- `GET /admin/support/{id}` → Conversation view
+- `GET /admin/support/{id}/messages` → Poll new messages
+- `POST /admin/support/{id}/messages` → Agent reply
+- `POST /admin/support/{id}/status` → Update status
 
 ---
 
@@ -144,15 +178,18 @@ This document summarizes the current state of the project and provides a handoff
 - `post_view_stats` (post_id, date, views) [Unique(post_id, date)]
 - `activity_logs` (user_id, type, subject_id, subject_type, message, **meta**)
 - `page_packages` (id, name, slug, zip_path, public_dir, version, entry_file, is_active, wire_contact, wire_selector, created_by, timestamps)
+- `support_conversations` (id, visitor_token, name, email, status, assigned_to, last_message_at, source_url, referrer, meta)
+- `support_messages` (id, conversation_id, sender_type, user_id, message, read_at, timestamps)
 
 ---
 
 ## 4) Code/Folder Notes
 
 - **Helpers**: `app/helpers.php` contains `setting()`, `setting_set()`, and `activity_log()`.
-- **Models**: `PostViewStat` (Analytic), `ActivityLog` (History), `Media`, `MediaFolder`, `PagePackage`.
+- **Models**: `PostViewStat` (Analytic), `ActivityLog` (History), `Media`, `MediaFolder`, `PagePackage`, `SupportConversation`, `SupportMessage`.
 - **Services**: `ZipExtractService` (safe ZIP extraction), `PublishService` (publish to public + inject JS).
-- **Migrations**: Latest include `create_post_view_stats`, `create_activity_logs`, `add_metadata_to_media_table`, `create_media_folders_table`, `create_page_packages_table`.
+- **Controllers**: `PublicSupportController` (guest endpoints), `Admin\SupportController` (admin inbox).
+- **Migrations**: Latest include `create_post_view_stats`, `create_activity_logs`, `add_metadata_to_media_table`, `create_media_folders_table`, `create_page_packages_table`, `create_support_conversations_table`, `create_support_messages_table`.
 - **Views**: 
   - `resources/views/admin/media/index.blade.php` (Sidebar + Grid)
   - `resources/views/admin/media/show.blade.php` (Detail view)
@@ -161,6 +198,8 @@ This document summarizes the current state of the project and provides a handoff
   - `resources/views/admin/page-builder/` (index, create, show)
 - **TinyMCE**: `public/js/tinymce/tinymce.min.js` (GPL license)
 - **Public Assets**: `public/pagebuilder/{slug}/{version}/` (Published static sites)
+- **Support Views**: `resources/views/admin/support/` (index, show)
+- **Chat Widget**: `resources/views/components/site/support-widget.blade.php`
 
 ---
 
@@ -256,12 +295,11 @@ You are continuing a Laravel mini CMS project. Constraints:
 - **Page Builder**: Upload static HTML sites (ZIP), auto-inject contact forms, serve at `/b/{slug}`.
   - **Security**: Safe extraction (allowlist, blocklist, path traversal prevention, size limits).
   - **Lead Integration**: Public endpoint `/lead` with rate limiting + honeypot.
+- **Chat Support**: Real-time (SSE) Guest/Admin chat, 4s polling fallback, 1 visitor ↔ 1 conversation logic.
 
-**Database**:
-- Tables included: users, posts, pages, categories, tags, media, media_folders, settings, leads, post_view_stats, activity_logs, page_packages.
+- Tables included: users, posts, pages, categories, tags, media, media_folders, settings, leads, post_view_stats, activity_logs, page_packages, support_conversations, support_messages.
 
 **IMMEDIATE NEXT TASK:**
-- **Test Page Builder**: Upload a test ZIP package and verify contact form integration.
 - **Phase D (Media)**: Thumbnails generation (optimization).
 - **Post Scheduling**: Implement accurate scheduling.
 

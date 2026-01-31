@@ -17,9 +17,10 @@ use App\Http\Controllers\InstallerController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\PublicLeadController;
 use App\Http\Controllers\PublicPageBuilderController;
-
+use App\Http\Controllers\PublicSupportController;
 
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\Admin\SupportController;
 
 // Installer Routes (must be before other routes)
 Route::prefix('install')->name('installer.')->group(function() {
@@ -40,8 +41,23 @@ Route::post('logout', [AuthController::class, 'logout'])->name('logout')->middle
 Route::get('/sitemap.xml', [App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 Route::get('/robots.txt', [App\Http\Controllers\SitemapController::class, 'robots'])->name('robots');
 
+// Public Support (no CSRF, with throttle + honeypot)
+Route::post('/support/first-message', [PublicSupportController::class, 'firstMessage'])
+    ->middleware('throttle:10,1')
+    ->name('support.first-message');
+Route::post('/support/messages', [PublicSupportController::class, 'sendMessage'])
+    ->middleware('throttle:12,1')
+    ->name('support.send');
+Route::get('/support/messages', [PublicSupportController::class, 'pollMessages'])
+    ->middleware('throttle:60,1')
+    ->name('support.poll');
+// SSE Stream
+Route::get('/support/stream', [PublicSupportController::class, 'stream'])
+    ->middleware('throttle:60,1')
+    ->name('support.stream');
+
 // Admin
-Route::prefix('admin')->name('admin.')->middleware('auth')->group(function(){
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'active_user'])->group(function(){
     // Dashboard
     Route::get('/', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
 
@@ -77,11 +93,21 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function(){
     Route::post('leads/{lead}/status', [LeadController::class, 'updateStatus'])->name('leads.status');
     Route::post('leads/bulk', [LeadController::class, 'bulk'])->name('leads.bulk');
 
+    // Support
+    Route::get('support', [SupportController::class, 'index'])->name('support.index');
+    Route::get('support/{id}', [SupportController::class, 'show'])->name('support.show');
+    Route::get('support/{id}/messages', [SupportController::class, 'pollMessages'])->name('support.poll');
+    Route::get('support/{id}/stream', [SupportController::class, 'stream'])->name('support.stream');
+    Route::post('support/{id}/messages', [SupportController::class, 'reply'])->name('support.reply');
+    Route::post('support/{id}/status', [SupportController::class, 'updateStatus'])->name('support.status');
+
     // Page Builder
     Route::get('page-builder', [PageBuilderController::class, 'index'])->name('page-builder.index');
     Route::get('page-builder/create', [PageBuilderController::class, 'create'])->name('page-builder.create');
     Route::post('page-builder', [PageBuilderController::class, 'store'])->name('page-builder.store');
     Route::get('page-builder/{id}', [PageBuilderController::class, 'show'])->name('page-builder.show');
+    Route::put('page-builder/{id}', [PageBuilderController::class, 'update'])->name('page-builder.update');
+    Route::delete('page-builder/{id}', [PageBuilderController::class, 'destroy'])->name('page-builder.destroy');
     Route::post('page-builder/{id}/activate', [PageBuilderController::class, 'activate'])->name('page-builder.activate');
 
     // Admin Only
@@ -110,4 +136,6 @@ Route::get('/search', [App\Http\Controllers\SearchController::class, 'index'])->
 Route::post('/lead', [PublicLeadController::class, 'store'])
     ->middleware('throttle:30,1')
     ->name('lead.store');
-Route::get('/b/{slug}', [PublicPageBuilderController::class, 'show'])->name('pagebuilder.show');
+Route::get('/b/{slug}/{path?}', [PublicPageBuilderController::class, 'serve'])
+    ->where('path', '.*')
+    ->name('pagebuilder.show');

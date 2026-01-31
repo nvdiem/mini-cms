@@ -187,5 +187,8 @@
       }, 4000);
     }
   </script>
+
+  {{-- Support Chat Widget --}}
+  @include('components.site.support-widget')
 </body>
 </html>

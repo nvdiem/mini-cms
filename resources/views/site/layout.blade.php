@@ -66,5 +66,8 @@
       © {{ date('Y') }} PointOne
     </div>
   </footer>
+
+  {{-- Support Chat Widget --}}
+  <x-site.support-widget />
 </body>
 </html>
