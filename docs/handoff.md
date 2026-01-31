@@ -1,325 +1,363 @@
-# Mini CMS (Laravel + Blade, No NPM) — Project Status & Handoff (as of 2026-01-28)
+Mini CMS (Laravel + Blade, No NPM) — Project Status & Handoff (Master)
 
-This document summarizes the current state of the project and provides a handoff prompt so another AI can continue the work seamlessly.
+As of: 2026-01-31
 
----
+0) Environment & Constraints
 
-## 0) Environment & Constraints
-- **Stack:** Laravel + MySQL (Laragon on Windows)
-- **Views:** Blade only
-- **Frontend:** Tailwind via **CDN** (no Vite, no npm)
-- **Auth:** Custom (no Breeze)
-- **UI Base:** `mini_cms_templates_v2` (calm theme tokens, admin layout, responsive list)
-- **Must keep:** confirm modal, toast + undo, mobile card view, calm colors for long usage
+Stack: Laravel + MySQL (Laragon Windows)
 
----
+Views: Blade only
 
-## 1) Implemented Features (Done)
+Frontend: Tailwind via CDN (no Vite, no npm)
 
-### 1.1 Authentication & Roles (Sprint 2) ✨
-- **Roles**: `admin` (Full access), `editor` (Content only).
-- **Status**: `is_active` check. Disabled users cannot login.
-- **Middleware**: `admin` middleware protects sensitive routes.
-- **Demo Users**:
-  - `admin@local.test` / `123456`
-  - `editor@local.test` / `123456`
+Auth: Custom (no Breeze)
 
-### 1.2 User Management Module (Sprint 2) ✨
-- Admin-only CRUD: `/admin/users`
-- Security: Admins cannot disable themselves.
-- UI: Badge indicators for Roles/Status.
+UI Base: mini_cms_templates_v2 (calm theme tokens, admin layout, responsive list)
 
-### 1.3 Analytics & Dashboard (Sprint 3) ✨
-- **Dashboard UI**: `/admin` now shows a comprehensive SaaS-style dashboard.
-- **Charts**: Chart.js integration showing Daily Views vs Leads (Last 7/14/30 days).
-- **KPI Cards**: Total Views, New Leads, Content Stats (Published, Draft, Review).
-- **Activity Feed**: Timeline of recent system actions with clickable links.
-- **Top Content**: Table showing best-performing posts by views.
+Must keep: confirm modal, toast + undo, mobile card view, calm colors for long usage
 
-### 1.4 Refined Activity Logging System (Sprint 3) ✨
-- **Robustness**: `activity_logs` table with `meta` (JSON) support for rich context.
-- **Helper**: Global `activity_log()` function auto-detects user, subject, and generates links.
-- **Integration**:
-  - **Posts/Pages**: Created, Updated, Trashed, Restored, Bulk actions, Quick Publish.
-  - **Leads**: Created (Guest), Status Changed.
-  - **Settings**: Configuration updates.
+1) Implemented Features (Done)
+1.1 Authentication & Roles
 
-### 1.5 Media Module Overhaul (Sprint 4 & Phases A/B/C) 🚀
-- **Safe Delete**: Prevents deletion of media used in Posts/Pages.
-- **Metadata**: `alt_text`, `caption`, `width`, `height` stored in DB.
-- **Detail View**: Dedicated page `/admin/media/{id}` to edit metadata, see usage stats, and copy URL.
-- **Folders**:
-  - Sidebar with "All", "Unsorted", and Custom Folders with live counts.
-  - New Folder modal & Rename Folder modal.
-  - Sidebar counts respect Search Query (e.g. searching "logo" shows counts per folder).
-- **Upload**: Auto-captures image dimensions.
-- **Media Picker Modal**: Reusable component `<x-media-picker>` with:
-  - Grid layout, Search, Folder Filter.
-  - **Smart Resizing**: Width/Height inputs with auto-calculation (aspect ratio lock).
-  - Integration with TinyMCE (auto-inserts `<img>` with dimensions).
-  - Integration with Featured Image selection.
+Roles: admin (full), editor (content only)
 
-### 1.6 SEO Features (Sprint 4) 🚀
-- **Sitemap**: `/sitemap.xml` generated dynamically for Posts & Pages.
-- **Robots**: `/robots.txt` generated dynamically.
-- **Meta Tags**: Canonical URLs and Noindex for non-public pages.
+is_active gate (disabled users cannot login)
 
-### 1.7 WordPress-Style Editor Layout (Sprint 5) 🎨
-- **Posts & Pages**: Redesigned create/edit forms with 2-column layout
-  - **Left Column (8/12)**: Title, Permalink, Content (TinyMCE), Excerpt, SEO Settings (collapsible)
-  - **Right Sidebar (4/12)**: Publish box, Categories (Posts only), Tags (Posts only), Featured Image
-- **Icons**: Material Icons for visual hierarchy (Publish, Categories, Tags, Featured Image)
-- **Responsive**: Mobile-friendly (stacks vertically on small screens)
+Admin middleware protects sensitive routes
 
-### 1.8 TinyMCE Rich Text Editor (Sprint 5) ✨
-- **Integration**: TinyMCE 6 (GPL license) for Posts & Pages content editing
-- **Location**: `public/js/tinymce/tinymce.min.js`
-- **Configuration**:
-  - Height: 600px
-  - Plugins: lists, link, code, table, fullscreen, image
-  - Toolbar: undo/redo, blocks, bold/italic, lists, link, table, media, code, fullscreen
-  - Custom "Media Library" button (currently opens new tab - **needs modal implementation**)
+Demo users:
 
-### 1.9 Admin UI Improvements
-- **Sidebar**: Dashboard link added. Role-based visibility.
-- **Header**: Shows User Badge (ADM/EDT).
-- **Layout**: Calm theme, responsive sidebar.
-- **Toolbar Consolidation**: Posts & Pages index now have single-row toolbar
-  - **Left**: Bulk Actions dropdown + Apply button
-  - **Center**: Vertical divider
-  - **Right**: Search + Filters + Filter/Clear buttons + Item count
+admin@local.test / 123456
 
-### 1.10 Core Modules
-- **Posts**: CRUD, SEO, Tags/Cats, Review Workflow, **View Tracking**, **TinyMCE Editor**.
-- **Pages**: CRUD, SEO, **Activity Logging**, **TinyMCE Editor**.
-- **Taxonomies**: Categories, Tags.
-- **Media**: Library & Uploads & Folders.
-- **Leads**: Contact form submissions + Status workflow + **Logging**.
-- **Settings**: Site configurations (Global) + **Logging**.
+editor@local.test / 123456
 
-### 1.17 Chat Support Module (Sprint 9, 9.1 & 9.2) 💬
-- **Guest Widget**: Floating chat button (bottom-right) on all public pages.
-  - First message form (name, optional email, message).
-  - **Real-time**: Near-instant message delivery via **SSE** (Server-Sent Events).
-  - **Fallback**: Automatically degrades to polling (4s) if connection fails.
-  - **Typing Indicators**: "Support is typing..." (Real-time).
-  - **Unread Badge**: Red counter on widget toggle when minimized.
-  - Token stored in localStorage for session persistence.
-- **Admin Inbox**: `/admin/support` - List all conversations with search/filter.
-  - Status filter (Open/Pending/Closed).
-  - **Notifications**:
-    - **Sidebar Badge**: Red counter in sidebar menu.
-    - **Global Bell**: Navbar notification with total unread count (polls every 5s).
-    - **Table Badge**: Numeric badge (99+ cap) on conversation list.
-  - Responsive table/card views.
-- **Conversation View**: `/admin/support/{id}` - Chat timeline with reply box.
-  - **Real-time**: SSE integration for messages and status updates.
-  - **Typing Indicators**: "Visitor is typing..." (Real-time).
-  - **Sound**: Ping sound on new message arrival.
-  - Status auto-updates (e.g. if visitor replies, status changes to Open instantly).
-- **Status Rules**:
-  - Visitor message → `open`
-  - Agent reply → `pending`
-  - Agent can manually set `closed`.
-  - Visitor message while closed → auto reopen to `open`.
-- **Session Reset**: 72h timeout adds system message "--- New session started ---".
-- **Security**:
-  - CSRF exempt for public endpoints.
-  - Throttle: first-message (100/min), send (120/min), poll (600/min), stream (600/min).
-  - Honeypot field protection.
-- **Activity Logging**: All key actions logged.
+1.2 User Management (Admin only)
 
-### 1.11 Frontend Redesign
-- **Aesthetic**: Minimalist, whitespace-driven, Slate-50 palette.
-- **Components**: Hero, Featured Post, Grid, Related Posts, Contact Form.
-- **Optimized**: Mobile responsive, sticky header, progress bar.
+CRUD: /admin/users
 
----
+Security: admin cannot disable self
 
-## 2) Current Routes (web.php)
+UI badges for role/status
 
-### Frontend:
-- `GET /` → `site.home`
-- `GET /posts/{slug}` → `site.posts.show` (Tracks unique daily view)
-- `GET /p/{slug}` → `site.pages.show`
-- `GET /contact` → `contact.index`
-- `POST /contact` → `contact.store`
-- `GET /sitemap.xml`, `GET /robots.txt`
-- `GET /b/{slug}` → `pagebuilder.show` (Serve static page packages)
-- `POST /lead` → `lead.store` (PageBuilder forms, throttle:30,1)
-- `POST /support/first-message` → Guest starts chat (throttle:100,1)
-- `POST /support/messages` → Guest sends message (throttle:120,1)
-- `GET /support/messages` → Guest polls messages (throttle:600,1)
-- `GET /support/stream` → SSE Stream (throttle:600,1)
-- `POST /support/typing` → Typing Signal (throttle:100,1)
+1.3 Analytics Dashboard
 
-### Auth:
-- `GET /login`, `POST /login`, `POST /logout`
+/admin SaaS-style dashboard
 
-### Admin (Shared):
-- `dashboard` (`/admin`) - Analytics Home
-- `posts`, `pages`, `categories`, `tags`, `leads`, `review`
-- `media` (Full resource with folders support + detail view)
-- `page-builder` (Upload, List, Show, Activate static HTML packages)
+Chart.js: Daily Views vs Leads (7/14/30 days)
 
-### Admin (Protected - Admin Only):
-- `settings`: Index, Update
-- `users`: Index, Create, Store, Edit, Update, Toggle
+KPI cards + Activity feed + Top content table
 
-### Admin (Support - Admin/Editor):
-- `GET /admin/support` → Inbox list
-- `GET /admin/support/unread-count` → Global Badge Poll
-- `GET /admin/support/{id}` → Conversation view
-- `GET /admin/support/{id}/messages` → Poll new messages
-- `GET /admin/support/{id}/stream` → SSE Stream
-- `POST /admin/support/{id}/messages` → Agent reply
-- `POST /admin/support/{id}/status` → Update status
-- `POST /admin/support/{id}/typing` → Typing Signal
+1.4 Activity Logging
 
----
+activity_logs table with meta JSON
 
-## 3) Database Schema
+Helper activity_log() auto-detects user/subject + generates links
 
-### Tables:
-- `users` (id, name, email, password, **role**, **is_active**)
-- `posts`, `pages` (featured_image_id, meta_title, meta_description, meta_keywords, etc)
-- `categories`, `tags`, `pivot_tables`
-- `media` (id, path, **folder_id**, **alt_text**, **caption**, **width**, **height**, etc)
-- `media_folders` (id, name)
-- `settings` (key, value)
-- `leads` (name, email, phone, message, status, source)
-- `post_view_stats` (post_id, date, views) [Unique(post_id, date)]
-- `activity_logs` (user_id, type, subject_id, subject_type, message, **meta**)
-- `page_packages` (id, name, slug, zip_path, public_dir, version, entry_file, is_active, wire_contact, wire_selector, created_by, timestamps)
-- `support_conversations` (id, visitor_token, name, email, status, assigned_to, last_message_at, source_url, referrer, meta)
-- `support_messages` (id, conversation_id, sender_type, user_id, message, read_at, timestamps)
+Integrated for: posts/pages/leads/settings (incl bulk/restore/publish actions)
 
----
+1.5 Media Module (Phases A/B/C)
 
-## 4) Code/Folder Notes
+Safe delete: prevent removing media used in posts/pages
 
-- **Helpers**: `app/helpers.php` contains `setting()`, `setting_set()`, and `activity_log()`.
-- **Models**: `PostViewStat` (Analytic), `ActivityLog` (History), `Media`, `MediaFolder`, `PagePackage`, `SupportConversation`, `SupportMessage`.
-- **Services**: `ZipExtractService` (safe ZIP extraction), `PublishService` (publish to public + inject JS).
-- **Controllers**: `PublicSupportController` (guest endpoints), `Admin\SupportController` (admin inbox).
-- **Migrations**: Latest include `create_post_view_stats`, `create_activity_logs`, `add_metadata_to_media_table`, `create_media_folders_table`, `create_page_packages_table`, `create_support_conversations_table`, `create_support_messages_table`.
-- **Views**: 
-  - `resources/views/admin/media/index.blade.php` (Sidebar + Grid)
-  - `resources/views/admin/media/show.blade.php` (Detail view)
-  - `resources/views/admin/posts/_form.blade.php` (WordPress-style layout + TinyMCE)
-  - `resources/views/admin/pages/_form.blade.php` (WordPress-style layout + TinyMCE)
-  - `resources/views/admin/page-builder/` (index, create, show)
-- **TinyMCE**: `public/js/tinymce/tinymce.min.js` (GPL license)
-- **Public Assets**: `public/pagebuilder/{slug}/{version}/` (Published static sites)
-- **Support Views**: `resources/views/admin/support/` (index, show)
-- **Chat Widget**: `resources/views/components/site/support-widget.blade.php`
+Metadata: alt_text, caption, width, height
 
----
+Media detail page: /admin/media/{id}
 
-## 5) Known Issues & Next Steps
+Folders with sidebar counts (counts respect current search)
 
-### 1.12 Media Picker Modal (Sprint 6) ✅
-- **Component**: Reusable `<x-media-picker>` modal.
-- **Features**:
-  - **Smart Resize**: Auto-calculates height from width (and vice versa) using aspect ratio.
-  - **Legacy Support**: JS auto-detects dimensions for old images without DB metadata.
-  - **Integration**: Works seamlessly with TinyMCE and Featured Image selection.
+Upload captures image dimensions
 
-### 1.13 Frontend Search (Sprint 6) 🔍
-- **Route**: `/search?q=...`
-- **Logic**: Searches Title (priority), Excerpt, Content.
-- **Features**:
-  - **Highlighting**: Keyword matches highlighted in yellow in Title and Snippets.
-  - **Snippets**: Auto-generated text window around keyword.
-  - **Header**: Integrated search bar in site navigation.
-  - **Security**: Only shows published posts.
+Reusable <x-media-picker> modal:
 
-  - **Security**: Only shows published posts.
+search + folder filter + grid
 
-### 1.14 Frontend SEO & Enhancements (Sprint 6) 🚀
-- **Breadcrumbs**: Reusable component `<x-breadcrumbs>` integrated into Post/Page views.
-- **Related Posts**: Advanced logic (Tags > Categories > Latest) ensuring 4 items always show.
-- **Schema.org**: JSON-LD (Article/WebPage) injected via Controller/Layout.
+smart resizing (aspect ratio lock)
 
-### 1.15 Page Builder (Sprint 7) 🎨
-- **Upload & Publish**: Admin can upload ZIP files containing static HTML/CSS/JS sites.
-- **Safe Extraction**: Comprehensive security (MIME validation, extension allowlist/blocklist, path traversal prevention, size limits).
-- **Contact Form Wiring**: Automatic JavaScript injection to connect static forms to CMS leads.
-- **Public Serving**: Static sites served at `/b/{slug}` with version management.
-- **Lead Integration**: Public endpoint `/lead` (no CSRF) with rate limiting + honeypot protection.
-- **Admin UI**: List, Upload, Detail views with status badges (Active, Wired).
-- **Activity Logging**: All package actions logged with metadata.
+integrates with TinyMCE + featured image
 
-### 1.16 Production Readiness (Sprint 8) 📦
-- **Web Installer**: 4-step installation wizard at `/install`:
-  - Step 1: Server requirements check (PHP, extensions, writable dirs)
-  - Step 2: Database configuration with connection test
-  - Step 3: Admin account and site settings creation
-  - Step 4: Complete with credentials display
-  - Auto-generates `.env` file with APP_KEY
-  - Locks installer after completion (`storage/installed`)
-- **Documentation**:
-  - `README.md`: Product-focused overview
-  - `INSTALL.md`: Detailed installation guide (shared hosting, VPS)
-  - `CHANGELOG.md`: Version history
-  - `LICENSE.md`: Commercial license terms
-- **Build System**: PowerShell script `build.ps1` creates release ZIP
+1.6 SEO
 
+/sitemap.xml dynamic for posts/pages
 
-### 📋 **Planned Features**
-- **Phase D (Media)**: Thumbnails generation (optimization)
-- **Post Scheduling**: Implement accurate scheduling (currently just `published_at` field)
-- **Comment System**: Add comments to posts with moderation queue
-- **Newsletter**: Simple subscription form & email list management
-- **Comment System**: Add comments to posts with moderation queue
-- **Newsletter**: Simple subscription form & email list management
+/robots.txt dynamic
 
+Canonical + Noindex for non-public pages
 
----
+1.7 Editor UI (WordPress-style)
 
-## 6) Handoff Prompt for Another AI
+Posts/Pages create/edit: 2-column layout
 
-**PROMPT START**
+Right sidebar: publish box, taxonomy (posts), featured image
 
+Responsive on mobile
+
+1.8 TinyMCE 6
+
+Location: public/js/tinymce/tinymce.min.js (GPL)
+
+Plugins: lists, link, code, table, fullscreen, image
+
+Toolbar: undo/redo, blocks, bold/italic, lists, link, table, media, code, fullscreen
+
+1.9 Core Modules
+
+Posts: CRUD, SEO, tags/cats, review workflow, view tracking (post_view_stats)
+
+Pages: CRUD, SEO, logging
+
+Taxonomies: categories, tags
+
+Leads: public submit + admin management (status workflow + logging)
+
+Settings: global config via setting()/setting_set() + logging
+
+Page Builder: upload ZIP static sites, safe extract, auto-wire contact forms, public serve /b/{slug}
+
+2) Chat Support Module (Sprints 9 / 9.1 / 9.2) 💬
+2.1 Core UX
+
+Guest floating widget on all public pages
+
+First message: name + optional email + message
+
+Session persistence: visitor_token in localStorage
+
+72h idle: system message --- New session started ---
+
+2.2 Realtime & Reliability
+
+Primary: SSE (Server-Sent Events)
+
+Fallback: polling (4s) if SSE fails
+
+Resume: supports Last-Event-ID to re-deliver missed messages after reconnect
+
+Heartbeat: SSE ping events keep connections alive on shared hosting/proxies
+
+2.3 Message Types (IMPORTANT — keep consistent)
+
+support_messages.sender_type values used in logic:
+
+visitor (guest)
+
+agent (admin/editor)
+
+system (session reset markers)
+
+Unread logic depends on these values.
+
+2.4 Unread System (read_at)
+
+Each message has read_at
+
+Admin unread: visitor messages where read_at IS NULL
+
+Guest unread: agent messages where read_at IS NULL
+
+Mark-read rules:
+
+Admin opens /admin/support/{id} → mark visitor msgs read
+
+Guest opens widget → mark agent msgs read
+
+2.5 Typing Indicators (No WebSocket)
+
+Guest typing → cache key support:typing:guest:{conversation_id}
+
+Admin typing → cache key support:typing:admin:{conversation_id}
+
+typing=true if timestamp within last 3 seconds
+
+2.6 Notifications & UI (Admin)
+
+Inbox /admin/support:
+
+per-conversation numeric badge (99+ cap)
+
+Sidebar “Support” menu:
+
+subtle red dot if total unread > 0 (no number)
+
+Navbar bell:
+
+numeric total unread badge (99+ cap)
+
+title sync (n) ... and sound ping on new message (audio unlock pattern)
+
+2.7 Status Rules
+
+Visitor message → open
+
+Agent reply → pending
+
+Agent can set closed
+
+Visitor message while closed → auto reopen open
+
+3) Current Routes (web.php)
+Frontend
+
+GET / → site.home
+
+GET /posts/{slug} → post show (unique daily view tracking)
+
+GET /p/{slug} → page show
+
+GET /contact, POST /contact
+
+GET /sitemap.xml, GET /robots.txt
+
+GET /b/{slug}/{path?} → pagebuilder serve
+
+POST /lead → pagebuilder leads
+
+Public Support
+
+POST /support/first-message
+
+POST /support/messages
+
+GET /support/messages (poll)
+
+GET /support/stream (SSE)
+
+POST /support/typing
+
+POST /support/mark-read ✅
+
+Admin Support (Admin/Editor)
+
+GET /admin/support
+
+GET /admin/support/unread-count (lightweight poll for global badge)
+
+GET /admin/support/{id}
+
+GET /admin/support/{id}/messages (poll)
+
+GET /admin/support/{id}/stream (SSE)
+
+POST /admin/support/{id}/messages (reply)
+
+POST /admin/support/{id}/status
+
+POST /admin/support/{id}/typing
+
+POST /admin/support/{id}/mark-read ✅
+
+4) Database Schema (Key Tables)
+
+users (role, is_active)
+
+posts, pages (SEO fields, featured_image_id)
+
+media, media_folders
+
+leads
+
+post_view_stats (unique per post/day)
+
+activity_logs (meta JSON)
+
+page_packages
+
+support_conversations
+
+support_messages (sender_type, read_at)
+
+5) Code / Folder Notes
+
+Helpers: app/helpers.php → setting(), setting_set(), activity_log()
+
+Controllers:
+
+PublicSupportController
+
+Admin\SupportController
+
+Views:
+
+Admin support: resources/views/admin/support/index.blade.php, show.blade.php
+
+Guest widget: resources/views/components/site/support-widget.blade.php
+
+TinyMCE: public/js/tinymce/tinymce.min.js
+
+6) Throttling Notes
+
+Current limits may be tuned for test/staging. For production (shared hosting) consider lowering:
+
+first-message: 10/min
+
+send: 12/min
+
+poll: 60/min
+
+stream: 60/min
+Typing: 10–30/min is sufficient.
+
+7) Regression Checklist (Chat Support)
+
+SSE keeps alive > 5 minutes (heartbeat)
+
+Network drop + reconnect → missed messages delivered (Last-Event-ID resume)
+
+Unread counts correct for admin & guest (read_at, mark-read)
+
+Typing works both directions (<=3s window)
+
+Audio ping only after user interaction (no autoplay errors)
+
+Title (n) sync updates immediately on mark-read
+
+8) Project Status
+- **Core Features**: Complete & Stable.
+- **Chat Support**: Complete (Sprint 9.2).
+- **Next Steps**: Maintenance & Bug fixing as needed.
+
+9) Handoff Prompt (for another AI)
+
+PROMPT START
 You are continuing a Laravel mini CMS project. Constraints:
-- Laravel + MySQL (Laragon Windows)
-- Blade only, Tailwind via CDN (NO npm, NO Vite)
-- Custom auth (no Breeze)
-- UI: "Minimal Japanese / SaaS" aesthetic for Frontend, "Calm Admin" for Backend.
 
-**Current implemented modules:**
-- **Core**: Posts & Pages (CRUD, SEO, Soft Deletes, **TinyMCE Editor**, **WordPress-style Layout**).
-- **Analytics**: Dashboard with Chart.js, KPI cards, Post View tracking (`post_view_stats`).
-- **Activity**: System-wide logging (`activity_logs` + `meta`) for audit trail.
-- **Media**: 
-  - **Library**: Folders (Sidebar), Search, Pagination.
-  - **Safety**: Prevent delete if in use.
-  - **Metadata**: Alt/Caption/Dimensions.
-  - **Details**: Dedicated view for management.
-  - **Picker**: **Reusable Modal** with Smart Resizing for TinyMCE & Featured Image.
-- **SEO**: Sitemap, Robots, Canonical.
-- **Taxonomies**: Categories & Tags.
-- **Settings**: Site-wide config via `setting()` helper.
-- **Leads**: Contact form & Admin management.
-- **User Management**: RBAC (Admin/Editor), User CRUD.
-- **Frontend**: Full redesign complete. Minimalist.
-  - **Search**: Advanced search with highlighting & snippets.
-- **Editor**: TinyMCE 6 integrated (GPL) at `public/js/tinymce/`.
-- **Page Builder**: Upload static HTML sites (ZIP), auto-inject contact forms, serve at `/b/{slug}`.
-  - **Security**: Safe extraction (allowlist, blocklist, path traversal prevention, size limits).
-  - **Lead Integration**: Public endpoint `/lead` with rate limiting + honeypot.
-- **Chat Support**: Real-time (SSE) Guest/Admin chat, **Typing Indicators**, **Unread Badges**, **Sound Notifications**, **10x Scalable Limits**.
+Laravel + MySQL (Laragon Windows)
 
-- Tables included: users, posts, pages, categories, tags, media, media_folders, settings, leads, post_view_stats, activity_logs, page_packages, support_conversations, support_messages.
+Blade only, Tailwind via CDN (NO npm, NO Vite)
 
-**IMMEDIATE NEXT TASK:**
-- **Phase D (Media)**: Thumbnails generation (optimization).
-- **Post Scheduling**: Implement accurate scheduling.
+Custom auth (no Breeze)
 
-**OTHER SUGGESTIONS:**
-- **Phase D (Media)**: Thumbnails generation (optimization).
-- **Post Scheduling**: Implement accurate scheduling.
-- **Comment System**: Add comments to posts with moderation queue.
-- **Newsletter**: Simple subscription form & email list management.
+UI: Minimal Japanese/SaaS frontend, Calm Admin backend.
 
-**PROMPT END**
+Implemented modules:
+
+Posts/Pages CRUD + SEO + Soft deletes + TinyMCE
+
+Analytics dashboard (Chart.js)
+
+Activity logs with meta JSON
+
+Media library + folders + safe delete + metadata + media picker modal
+
+Leads + settings + user management
+
+Page Builder (ZIP upload, safe extract, serve static sites)
+
+Chat Support:
+
+SSE real-time + polling fallback
+
+Last-Event-ID resume + heartbeat
+
+Unread via support_messages.read_at + mark-read endpoints
+
+Typing indicators via cache keys
+
+Admin UI notifications: sidebar dot, navbar bell badge, per-conversation badges, sound (audio unlock) + title sync.
+
+Current State:
+Project core features are complete. Focus is now on maintenance and stability.
+
+SCOPE NOTE (IMPORTANT):
+- Do NOT implement or suggest: media thumbnails, post scheduling, comments, newsletter.
+- Only work on tasks explicitly requested by the project owner.
+PROMPT END

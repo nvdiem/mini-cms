@@ -342,6 +342,12 @@ class PublicSupportController extends Controller
 
         $token = $request->query('visitor_token');
         $afterId = (int) $request->query('after_id', 0);
+        
+        // Support native EventSource resume
+        $lastEventId = $request->header('Last-Event-ID');
+        if ($lastEventId !== null && is_numeric($lastEventId)) {
+            $afterId = max($afterId, (int)$lastEventId);
+        }
 
         // Disable buffering for real-time delivery
         if (function_exists('apache_setenv')) {
@@ -424,9 +430,10 @@ class PublicSupportController extends Controller
                      flush();
                 }
 
-                // 3. Check for keepalive
-                if (time() - $lastKeepAlive >= 15) {
-                    echo ": keepalive\n\n";
+                // 3. Heartbeat (Ping)
+                if (time() - $lastKeepAlive >= 20) {
+                    echo "event: ping\n";
+                    echo "data: {\"t\": " . time() . "}\n\n";
                     ob_flush();
                     flush();
                     $lastKeepAlive = time();

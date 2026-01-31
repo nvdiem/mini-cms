@@ -166,7 +166,22 @@
   // OR use a safe simple base64 if I can generate one. 
   // Let's stick to '/sounds/ping.mp3' as suggested in prompt "Thêm file public/sounds/ping.mp3".
 
+  // Audio
   const audio = new Audio('/sounds/ping.mp3'); 
+  let audioUnlocked = false;
+
+  // Unlock audio on first interaction
+  function unlockAudio() {
+    if (audioUnlocked) return;
+    audio.play().then(() => {
+      audio.pause();
+      audio.currentTime = 0;
+      audioUnlocked = true;
+    }).catch(() => {});
+  }
+  document.body.addEventListener('click', unlockAudio, { once: true });
+  document.body.addEventListener('keydown', unlockAudio, { once: true });
+  document.addEventListener('touchstart', unlockAudio, { once: true }); 
 
   // Elements (add badge)
   const badge = document.createElement('div');

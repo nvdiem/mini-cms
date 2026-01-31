@@ -182,9 +182,41 @@
       let usePollingFallback = false;
       let pollTimer = null;
       let lastTypingSent = 0;
+      let unreadInSession = 0;
       
       // Audio
       const audio = new Audio('/sounds/ping.mp3');
+      let audioUnlocked = false;
+
+      // Audio Unlock on first interaction
+      function unlockAudio() {
+        if (audioUnlocked) return;
+        audio.play().then(() => {
+          audio.pause();
+          audio.currentTime = 0;
+          audioUnlocked = true;
+        }).catch(() => {}); // Expected if no interaction yet
+      }
+      document.body.addEventListener('click', unlockAudio, { once: true });
+      document.body.addEventListener('keydown', unlockAudio, { once: true });
+
+      // Title Sync
+      const originalTitle = document.title;
+      function updateTitle() {
+        if (unreadInSession > 0) {
+            document.title = `(${unreadInSession}) ${originalTitle}`;
+        } else {
+            document.title = originalTitle;
+        }
+      }
+
+      // Reset unread on focus
+      window.addEventListener('focus', function() {
+        if (unreadInSession > 0) {
+            unreadInSession = 0;
+            updateTitle();
+        }
+      });
 
       // Scroll to bottom initially
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -258,8 +290,13 @@
             </div>
           </div>`;
           
-          // Sound for visitor message
+          // Sound for visitor message & Title Update
           try { audio.play().catch(()=>{}); } catch(e){}
+          
+          if (document.hidden) {
+            unreadInSession++;
+            updateTitle();
+          }
 
         } else {
           const time = new Date(msg.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });

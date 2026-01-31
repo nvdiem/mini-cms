@@ -163,7 +163,7 @@
             <span class="material-icons-outlined mr-3 text-[20px] {{ request()->is('admin/support*') ? 'text-primary' : 'text-slate-400 group-hover:text-slate-500 dark:text-slate-500 dark:group-hover:text-slate-300' }}" aria-hidden="true">support_agent</span>
             Support
         </div>
-        <span id="sidebarSupportBadge" class="hidden px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-500 text-white shadow-sm">0</span>
+        <span id="sidebarSupportBadge" class="hidden inline-flex h-2.5 w-2.5 rounded-full bg-rose-600 shadow-sm" aria-hidden="true"></span>
       </a>
 
       @if(auth()->user()->role === 'admin')
@@ -203,7 +203,7 @@
 
         <a class="relative btn-ghost px-3 py-2 mr-2 group" href="{{ route('admin.support.index') }}" title="Support Messages">
           <span class="material-icons-outlined text-[20px] text-slate-500 group-hover:text-primary transition-colors" aria-hidden="true">notifications</span>
-          <span id="globalSupportBadge" class="hidden absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white shadow-sm ring-1 ring-white dark:ring-slate-900">0</span>
+          <span id="globalSupportBadge" class="hidden absolute -top-1 -right-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[11px] font-semibold bg-rose-600 text-white shadow-sm ring-1 ring-white dark:ring-slate-900">0</span>
         </a>
 
         <div class="hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark">
@@ -261,11 +261,12 @@
                 }
             }
             
-            // Update Sidebar
+            // Update Sidebar (Dot only)
             if(sidebarBadge) {
                 if(count > 0) {
-                    sidebarBadge.textContent = count > 99 ? '99+' : count;
                     sidebarBadge.classList.remove('hidden');
+                    sidebarBadge.setAttribute('title', `${count} tin nhắn chưa đọc`);
+                    sidebarBadge.setAttribute('aria-label', `${count} tin nhắn chưa đọc`);
                 } else {
                     sidebarBadge.classList.add('hidden');
                 }

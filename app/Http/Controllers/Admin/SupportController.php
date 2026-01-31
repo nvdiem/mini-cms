@@ -233,9 +233,18 @@ class SupportController extends Controller
     /**
      * Stream new messages and status updates via SSE
      */
+    /**
+     * Stream new messages and status updates via SSE
+     */
     public function stream(Request $request, $id)
     {
         $afterId = (int) $request->query('after_id', 0);
+
+        // Support native EventSource resume
+        $lastEventId = $request->header('Last-Event-ID');
+        if ($lastEventId !== null && is_numeric($lastEventId)) {
+            $afterId = max($afterId, (int)$lastEventId);
+        }
         
         // Disable buffering
         if (function_exists('apache_setenv')) {
@@ -339,9 +348,10 @@ class SupportController extends Controller
                     flush();
                 }
 
-                // 4. Keepalive
-                if (time() - $lastKeepAlive >= 15) {
-                    echo ": keepalive\n\n";
+                // 4. Heartbeat
+                if (time() - $lastKeepAlive >= 20) {
+                    echo "event: ping\n";
+                    echo "data: {\"t\": " . time() . "}\n\n";
                     ob_flush();
                     flush();
                     $lastKeepAlive = time();
