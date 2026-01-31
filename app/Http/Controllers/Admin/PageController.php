@@ -120,6 +120,8 @@ class PageController extends Controller
             'page' => $page,
             'isPreview' => true,
             'backUrl' => route('admin.pages.edit', $page),
+            'breadcrumbs' => [],
+            'schema' => [],
         ]);
     }
 

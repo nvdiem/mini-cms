@@ -148,6 +148,11 @@ class PostController extends Controller
             'post' => $post,
             'isPreview' => true,
             'backUrl' => route('admin.posts.edit', $post),
+            'breadcrumbs' => [],
+            'relatedPosts' => collect(),
+            'nextPost' => null,
+            'prevPost' => null,
+            'schema' => [],
         ]);
     }
 
