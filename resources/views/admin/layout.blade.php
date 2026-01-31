@@ -158,9 +158,12 @@
         <span class="material-icons-outlined mr-3 text-[20px] {{ request()->is('admin/leads*') ? 'text-primary' : 'text-slate-400 group-hover:text-slate-500 dark:text-slate-500 dark:group-hover:text-slate-300' }}" aria-hidden="true">people</span>
         Leads
       </a>
-      <a class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors {{ request()->is('admin/support*') ? 'bg-primary/10 text-primary dark:bg-primary/15' : '' }}" href="{{ route('admin.support.index') }}">
-        <span class="material-icons-outlined mr-3 text-[20px] {{ request()->is('admin/support*') ? 'text-primary' : 'text-slate-400 group-hover:text-slate-500 dark:text-slate-500 dark:group-hover:text-slate-300' }}" aria-hidden="true">support_agent</span>
-        Support
+      <a id="sidebarSupportLink" class="group flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors {{ request()->is('admin/support*') ? 'bg-primary/10 text-primary dark:bg-primary/15' : '' }}" href="{{ route('admin.support.index') }}">
+        <div class="flex items-center">
+            <span class="material-icons-outlined mr-3 text-[20px] {{ request()->is('admin/support*') ? 'text-primary' : 'text-slate-400 group-hover:text-slate-500 dark:text-slate-500 dark:group-hover:text-slate-300' }}" aria-hidden="true">support_agent</span>
+            Support
+        </div>
+        <span id="sidebarSupportBadge" class="hidden px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-500 text-white shadow-sm">0</span>
       </a>
 
       @if(auth()->user()->role === 'admin')
@@ -198,6 +201,11 @@
           Toggle
         </button>
 
+        <a class="relative btn-ghost px-3 py-2 mr-2 group" href="{{ route('admin.support.index') }}" title="Support Messages">
+          <span class="material-icons-outlined text-[20px] text-slate-500 group-hover:text-primary transition-colors" aria-hidden="true">notifications</span>
+          <span id="globalSupportBadge" class="hidden absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white shadow-sm ring-1 ring-white dark:ring-slate-900">0</span>
+        </a>
+
         <div class="hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark">
           <div class="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold">
             {{ strtoupper(substr(auth()->user()->email ?? 'U', 0, 1)) }}
@@ -229,6 +237,48 @@
 
 <script>
 (function(){
+  // Notification Polling
+  const bellBadge = document.getElementById('globalSupportBadge');
+  const sidebarBadge = document.getElementById('sidebarSupportBadge');
+  const POLL_INTERVAL = 5000; // 5s
+  
+  async function pollUnread() {
+    try {
+        const res = await fetch('{{ route('admin.support.unread-count') }}', {
+            headers: { 'Accept': 'application/json' }
+        });
+        if(res.ok) {
+            const data = await res.json();
+            const count = data.count;
+            
+            // Update Bell
+            if(bellBadge) {
+                if(count > 0) {
+                    bellBadge.textContent = count > 99 ? '99+' : count;
+                    bellBadge.classList.remove('hidden');
+                } else {
+                    bellBadge.classList.add('hidden');
+                }
+            }
+            
+            // Update Sidebar
+            if(sidebarBadge) {
+                if(count > 0) {
+                    sidebarBadge.textContent = count > 99 ? '99+' : count;
+                    sidebarBadge.classList.remove('hidden');
+                } else {
+                    sidebarBadge.classList.add('hidden');
+                }
+            }
+        }
+    } catch(e) {}
+  }
+  
+  if(bellBadge || sidebarBadge) {
+    pollUnread(); // Initial check
+    setInterval(pollUnread, POLL_INTERVAL);
+  }
+
   const host = document.getElementById('toastHost');
   function toneToIcon(tone){
     if(tone === "success") return ["check_circle","text-emerald-600"];

@@ -12,12 +12,19 @@ class SupportController extends Controller
     /**
      * Display inbox list of all conversations
      */
+    /**
+     * Display inbox list of all conversations
+     */
     public function index(Request $request)
     {
         $q = trim((string) $request->query('q', ''));
         $status = $request->query('status', '');
 
-        $query = SupportConversation::query()->with(['latestMessage', 'assignedAgent']);
+        $query = SupportConversation::query()
+            ->with(['latestMessage', 'assignedAgent'])
+            ->withCount(['messages as unread_count' => function($q) {
+                $q->where('sender_type', 'visitor')->whereNull('read_at');
+            }]);
 
         if ($q) {
             $query->where(function($sub) use ($q) {
@@ -47,8 +54,9 @@ class SupportController extends Controller
     {
         $conversation = SupportConversation::with(['messages.user', 'assignedAgent'])
             ->findOrFail($id);
-
-        // Mark all visitor messages as read
+            
+        // We'll mark read via JS or separate call to ensure accurate UI state
+        // But keeping server-side mark-read on load is good practice too
         SupportMessage::where('conversation_id', $id)
             ->where('sender_type', 'visitor')
             ->whereNull('read_at')
@@ -56,6 +64,30 @@ class SupportController extends Controller
 
         return view('admin.support.show', compact('conversation'));
     }
+
+    /**
+     * Mark visitor messages as read manually (AJAX)
+     */
+    public function markRead(Request $request, $id)
+    {
+        $count = SupportMessage::where('conversation_id', $id)
+            ->where('sender_type', 'visitor')
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
+
+        return response()->json(['ok' => true, 'marked' => $count]);
+    }
+
+    /**
+     * Signal that admin is typing
+     */
+    public function typing(Request $request, $id)
+    {
+        \Illuminate\Support\Facades\Cache::put("support:typing:admin:{$id}", time(), 10);
+        return response()->json(['ok' => true]);
+    }
+
+// ... reply and updateStatus unchanged ...
 
     /**
      * Send an agent reply to the conversation
@@ -185,13 +217,19 @@ class SupportController extends Controller
             ? $messages->last()['id'] 
             : $afterId;
 
+        // Check Guest typing
+        $guestTypingTimestamp = \Illuminate\Support\Facades\Cache::get("support:typing:guest:{$id}");
+        $isGuestTyping = $guestTypingTimestamp && (time() - $guestTypingTimestamp <= 3);
+
         return response()->json([
             'ok' => true,
             'messages' => $messages->values(),
             'last_message_id' => $lastMessageId,
             'conversation_status' => $conversation->fresh()->status,
+            'typing' => ['guest' => $isGuestTyping],
         ]);
     }
+
     /**
      * Stream new messages and status updates via SSE
      */
@@ -230,6 +268,7 @@ class SupportController extends Controller
             $currentStatus = $conversation->status;
             $startTime = time();
             $lastKeepAlive = time();
+            $lastTypingState = false;
 
             while (true) {
                 if (connection_aborted()) break;
@@ -284,12 +323,23 @@ class SupportController extends Controller
                     $packetSent = true;
                 }
 
+                // 3. Check for typing (Guest)
+                $guestTypingTimestamp = \Illuminate\Support\Facades\Cache::get("support:typing:guest:{$conversation->id}");
+                $isGuestTyping = $guestTypingTimestamp && (time() - $guestTypingTimestamp <= 3);
+
+                if ($isGuestTyping !== $lastTypingState) {
+                     echo "event: typing\n";
+                     echo "data: " . json_encode(['guest' => $isGuestTyping]) . "\n\n";
+                     $lastTypingState = $isGuestTyping;
+                     $packetSent = true;
+                }
+
                 if ($packetSent) {
                     ob_flush();
                     flush();
                 }
 
-                // 3. Keepalive
+                // 4. Keepalive
                 if (time() - $lastKeepAlive >= 15) {
                     echo ": keepalive\n\n";
                     ob_flush();
@@ -300,5 +350,16 @@ class SupportController extends Controller
                 usleep(500000); // 0.5s
             }
         }, 200, $headers);
+    }
+    /**
+     * Get global unread count
+     */
+    public function unreadCount()
+    {
+        $count = SupportMessage::where('sender_type', 'visitor')
+            ->whereNull('read_at')
+            ->count();
+            
+        return response()->json(['count' => $count]);
     }
 }

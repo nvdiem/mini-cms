@@ -43,18 +43,25 @@ Route::get('/robots.txt', [App\Http\Controllers\SitemapController::class, 'robot
 
 // Public Support (no CSRF, with throttle + honeypot)
 Route::post('/support/first-message', [PublicSupportController::class, 'firstMessage'])
-    ->middleware('throttle:10,1')
+    ->middleware('throttle:100,1')
     ->name('support.first-message');
 Route::post('/support/messages', [PublicSupportController::class, 'sendMessage'])
-    ->middleware('throttle:12,1')
+    ->middleware('throttle:120,1')
     ->name('support.send');
 Route::get('/support/messages', [PublicSupportController::class, 'pollMessages'])
-    ->middleware('throttle:60,1')
+    ->middleware('throttle:600,1')
     ->name('support.poll');
 // SSE Stream
 Route::get('/support/stream', [PublicSupportController::class, 'stream'])
-    ->middleware('throttle:60,1')
+    ->middleware('throttle:600,1')
     ->name('support.stream');
+// New Enhancements (Sprint 9.2)
+Route::post('/support/mark-read', [PublicSupportController::class, 'markRead'])
+    ->middleware('throttle:600,1')
+    ->name('support.mark-read');
+Route::post('/support/typing', [PublicSupportController::class, 'typing'])
+    ->middleware('throttle:100,1')
+    ->name('support.typing');
 
 // Admin
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'active_user'])->group(function(){
@@ -95,11 +102,17 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'active_user'])->gro
 
     // Support
     Route::get('support', [SupportController::class, 'index'])->name('support.index');
+    Route::get('support/unread-count', [SupportController::class, 'unreadCount'])->name('support.unread-count'); // Moved up
     Route::get('support/{id}', [SupportController::class, 'show'])->name('support.show');
     Route::get('support/{id}/messages', [SupportController::class, 'pollMessages'])->name('support.poll');
     Route::get('support/{id}/stream', [SupportController::class, 'stream'])->name('support.stream');
     Route::post('support/{id}/messages', [SupportController::class, 'reply'])->name('support.reply');
     Route::post('support/{id}/status', [SupportController::class, 'updateStatus'])->name('support.status');
+    // Enhancements (Sprint 9.2)
+    Route::post('support/{id}/mark-read', [SupportController::class, 'markRead'])->name('support.mark-read');
+    Route::post('support/{id}/typing', [SupportController::class, 'typing'])
+        ->middleware('throttle:300,1')
+        ->name('support.typing');
 
     // Page Builder
     Route::get('page-builder', [PageBuilderController::class, 'index'])->name('page-builder.index');

@@ -225,6 +225,52 @@ class PublicSupportController extends Controller
     /**
      * Poll for new messages
      */
+    /**
+     * Mark messages as read by visitor
+     */
+    public function markRead(Request $request)
+    {
+        $validated = $request->validate([
+            'visitor_token' => ['required', 'string', 'max:64'],
+        ]);
+
+        $conversation = SupportConversation::where('visitor_token', $validated['visitor_token'])->first();
+
+        if ($conversation) {
+            // Mark all agent messages as read
+            $count = SupportMessage::where('conversation_id', $conversation->id)
+                ->where('sender_type', '!=', 'visitor') // agent or system
+                ->whereNull('read_at')
+                ->update(['read_at' => now()]);
+            
+            return response()->json(['ok' => true, 'marked' => $count]);
+        }
+
+        return response()->json(['ok' => false], 404);
+    }
+
+    /**
+     * Signal that visitor is typing
+     */
+    public function typing(Request $request)
+    {
+        $validated = $request->validate([
+            'visitor_token' => ['required', 'string', 'max:64'],
+        ]);
+
+        $conversation = SupportConversation::where('visitor_token', $validated['visitor_token'])->first();
+
+        if ($conversation) {
+            \Illuminate\Support\Facades\Cache::put("support:typing:guest:{$conversation->id}", time(), 10);
+            return response()->json(['ok' => true]);
+        }
+
+        return response()->json(['ok' => false], 404);
+    }
+
+    /**
+     * Poll for new messages
+     */
     public function pollMessages(Request $request)
     {
         $validated = $request->validate([
@@ -262,13 +308,28 @@ class PublicSupportController extends Controller
             ? $messages->last()['id'] 
             : $afterId;
 
+        // Check Admin typing status
+        $adminTypingTimestamp = \Illuminate\Support\Facades\Cache::get("support:typing:admin:{$conversation->id}");
+        $isAdminTyping = $adminTypingTimestamp && (time() - $adminTypingTimestamp <= 3);
+
+        // Count unread agent messages
+        $unreadCount = SupportMessage::where('conversation_id', $conversation->id)
+            ->where('sender_type', '!=', 'visitor')
+            ->whereNull('read_at')
+            ->count();
+
         return response()->json([
             'ok' => true,
             'messages' => $messages->values(),
             'last_message_id' => $lastMessageId,
             'conversation_status' => $conversation->status,
+            'typing' => [
+                'admin' => $isAdminTyping,
+            ],
+            'unread_count' => $unreadCount,
         ]);
     }
+
     /**
      * Stream new messages via SSE
      */
@@ -315,6 +376,7 @@ class PublicSupportController extends Controller
             $lastId = $afterId;
             $startTime = time();
             $lastKeepAlive = time();
+            $lastTypingState = false;
 
             // Run for max 60 seconds (client will reconnect) to prevent zombies
             while (true) {
@@ -342,18 +404,6 @@ class PublicSupportController extends Controller
                     echo "data: " . json_encode($payload) . "\n\n";
                     
                     $lastId = $msg->id;
-                    
-                    // Mark as read if from agent (assumed visitor is reading stream)
-                    if ($msg->sender_type !== 'visitor' && !$msg->read_at) {
-                         // We can't update inside stream efficiently without affecting performance loop often
-                         // But for now, let's skip update to keep loop tight or update if critical
-                         // The existing poll logic updated read_at.
-                         // Let's do it:
-                         // $msg->update(['read_at' => now()]); 
-                         // To avoid DB write loop, maybe skip this or do it smartly.
-                         // Requirement: "Keep... activity logs unchanged". Polling updated read_at.
-                         // Let's update read_at for agent messages
-                    }
                 }
                 
                 // If we found messages, flush immediately
@@ -362,7 +412,19 @@ class PublicSupportController extends Controller
                     flush();
                 }
 
-                // 2. Check for keepalive
+                // 2. Check for typing status
+                $adminTypingTimestamp = \Illuminate\Support\Facades\Cache::get("support:typing:admin:{$conversation->id}");
+                $isAdminTyping = $adminTypingTimestamp && (time() - $adminTypingTimestamp <= 3);
+
+                if ($isAdminTyping !== $lastTypingState) {
+                     echo "event: typing\n";
+                     echo "data: " . json_encode(['admin' => $isAdminTyping]) . "\n\n";
+                     $lastTypingState = $isAdminTyping;
+                     ob_flush();
+                     flush();
+                }
+
+                // 3. Check for keepalive
                 if (time() - $lastKeepAlive >= 15) {
                     echo ": keepalive\n\n";
                     ob_flush();

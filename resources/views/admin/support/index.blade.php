@@ -56,7 +56,14 @@
               <div class="flex items-start gap-3">
                 <div class="min-w-0 flex-1">
                   <div class="flex items-center gap-2">
-                    <div class="font-medium text-text-strong dark:text-white truncate">{{ $conv->name }}</div>
+                    <div class="font-medium text-text-strong dark:text-white truncate">
+                        @if($conv->unread_count > 0)
+                            <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-red-500 text-white mr-1 shadow-sm min-w-[20px] justify-center align-middle">
+                                {{ $conv->unread_count > 99 ? '99+' : $conv->unread_count }}
+                            </span>
+                        @endif
+                        {{ $conv->name }}
+                    </div>
                     @php
                       $badgeClass = match($conv->status) {
                         'open' => 'badge-draft',
@@ -102,7 +109,14 @@
             @foreach($conversations as $conv)
               <tr class="row group cursor-pointer" onclick="window.location='{{ route('admin.support.show', $conv->id) }}'">
                 <td class="td">
-                  <div class="font-medium text-text-strong dark:text-white">{{ $conv->name }}</div>
+                  <div class="font-medium text-text-strong dark:text-white flex items-center">
+                    @if($conv->unread_count > 0)
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-red-500 text-white mr-2 shadow-sm min-w-[20px] justify-center">
+                            {{ $conv->unread_count > 99 ? '99+' : $conv->unread_count }}
+                        </span>
+                    @endif
+                    {{ $conv->name }}
+                  </div>
                   @if($conv->assignedAgent)
                     <div class="text-xs text-text-muted dark:text-slate-400">→ {{ $conv->assignedAgent->email }}</div>
                   @endif

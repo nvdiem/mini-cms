@@ -97,17 +97,25 @@ This document summarizes the current state of the project and provides a handoff
 - **Leads**: Contact form submissions + Status workflow + **Logging**.
 - **Settings**: Site configurations (Global) + **Logging**.
 
-### 1.17 Chat Support Module (Sprint 9 & 9.1) 💬
+### 1.17 Chat Support Module (Sprint 9, 9.1 & 9.2) 💬
 - **Guest Widget**: Floating chat button (bottom-right) on all public pages.
   - First message form (name, optional email, message).
-  - **Real-time**: Near-instant message delivery via **SSÉ** (Server-Sent Events).
+  - **Real-time**: Near-instant message delivery via **SSE** (Server-Sent Events).
   - **Fallback**: Automatically degrades to polling (4s) if connection fails.
+  - **Typing Indicators**: "Support is typing..." (Real-time).
+  - **Unread Badge**: Red counter on widget toggle when minimized.
   - Token stored in localStorage for session persistence.
 - **Admin Inbox**: `/admin/support` - List all conversations with search/filter.
   - Status filter (Open/Pending/Closed).
+  - **Notifications**:
+    - **Sidebar Badge**: Red counter in sidebar menu.
+    - **Global Bell**: Navbar notification with total unread count (polls every 5s).
+    - **Table Badge**: Numeric badge (99+ cap) on conversation list.
   - Responsive table/card views.
 - **Conversation View**: `/admin/support/{id}` - Chat timeline with reply box.
   - **Real-time**: SSE integration for messages and status updates.
+  - **Typing Indicators**: "Visitor is typing..." (Real-time).
+  - **Sound**: Ping sound on new message arrival.
   - Status auto-updates (e.g. if visitor replies, status changes to Open instantly).
 - **Status Rules**:
   - Visitor message → `open`
@@ -117,7 +125,7 @@ This document summarizes the current state of the project and provides a handoff
 - **Session Reset**: 72h timeout adds system message "--- New session started ---".
 - **Security**:
   - CSRF exempt for public endpoints.
-  - Throttle: first-message (10/min), send (12/min), poll (60/min), stream (60/min).
+  - Throttle: first-message (100/min), send (120/min), poll (600/min), stream (600/min).
   - Honeypot field protection.
 - **Activity Logging**: All key actions logged.
 
@@ -139,9 +147,11 @@ This document summarizes the current state of the project and provides a handoff
 - `GET /sitemap.xml`, `GET /robots.txt`
 - `GET /b/{slug}` → `pagebuilder.show` (Serve static page packages)
 - `POST /lead` → `lead.store` (PageBuilder forms, throttle:30,1)
-- `POST /support/first-message` → Guest starts chat (throttle:10,1)
-- `POST /support/messages` → Guest sends message (throttle:12,1)
-- `GET /support/messages` → Guest polls messages (throttle:60,1)
+- `POST /support/first-message` → Guest starts chat (throttle:100,1)
+- `POST /support/messages` → Guest sends message (throttle:120,1)
+- `GET /support/messages` → Guest polls messages (throttle:600,1)
+- `GET /support/stream` → SSE Stream (throttle:600,1)
+- `POST /support/typing` → Typing Signal (throttle:100,1)
 
 ### Auth:
 - `GET /login`, `POST /login`, `POST /logout`
@@ -158,10 +168,13 @@ This document summarizes the current state of the project and provides a handoff
 
 ### Admin (Support - Admin/Editor):
 - `GET /admin/support` → Inbox list
+- `GET /admin/support/unread-count` → Global Badge Poll
 - `GET /admin/support/{id}` → Conversation view
 - `GET /admin/support/{id}/messages` → Poll new messages
+- `GET /admin/support/{id}/stream` → SSE Stream
 - `POST /admin/support/{id}/messages` → Agent reply
 - `POST /admin/support/{id}/status` → Update status
+- `POST /admin/support/{id}/typing` → Typing Signal
 
 ---
 
@@ -295,7 +308,7 @@ You are continuing a Laravel mini CMS project. Constraints:
 - **Page Builder**: Upload static HTML sites (ZIP), auto-inject contact forms, serve at `/b/{slug}`.
   - **Security**: Safe extraction (allowlist, blocklist, path traversal prevention, size limits).
   - **Lead Integration**: Public endpoint `/lead` with rate limiting + honeypot.
-- **Chat Support**: Real-time (SSE) Guest/Admin chat, 4s polling fallback, 1 visitor ↔ 1 conversation logic.
+- **Chat Support**: Real-time (SSE) Guest/Admin chat, **Typing Indicators**, **Unread Badges**, **Sound Notifications**, **10x Scalable Limits**.
 
 - Tables included: users, posts, pages, categories, tags, media, media_folders, settings, leads, post_view_stats, activity_logs, page_packages, support_conversations, support_messages.
 

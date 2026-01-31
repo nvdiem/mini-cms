@@ -181,7 +181,11 @@
       let eventSource = null;
       let usePollingFallback = false;
       let pollTimer = null;
+      let lastTypingSent = 0;
       
+      // Audio
+      const audio = new Audio('/sounds/ping.mp3');
+
       // Scroll to bottom initially
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
       
@@ -202,11 +206,38 @@
         else statusBadge.classList.add('bg-amber-100', 'text-amber-700', 'border-amber-200', 'dark:bg-amber-900/20', 'dark:text-amber-300', 'dark:border-amber-900/40');
       }
       
+      // Render typing indicator
+      function updateTypingIndicator(isGuestTyping) {
+        const existing = document.getElementById('typing-indicator-row');
+        if (isGuestTyping) {
+            if (!existing) {
+                const html = `<div id="typing-indicator-row" class="flex justify-start">
+                    <div class="bg-white dark:bg-slate-800 border border-border-light dark:border-border-dark rounded-xl rounded-tl-sm px-4 py-2 shadow-sm">
+                        <div class="text-xs text-slate-400 dark:text-slate-500 mb-1">Visitor is typing...</div>
+                         <div class="flex space-x-1 items-center h-4">
+                           <div class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></div>
+                           <div class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                           <div class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                         </div>
+                    </div>
+                </div>`;
+                messagesContainer.insertAdjacentHTML('beforeend', html);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        } else {
+            if (existing) existing.remove();
+        }
+      }
+
       // Append a message to the container
       function appendMessage(msg) {
         // Deduplicate
         if (msg.id && msg.id <= lastMessageId) return;
         if (msg.id) lastMessageId = msg.id;
+
+        // Remove typing indicator
+        const typingRow = document.getElementById('typing-indicator-row');
+        if (typingRow) typingRow.remove();
 
         const wasNearBottom = isNearBottom();
         let html = '';
@@ -226,6 +257,10 @@
               <div class="text-[10px] text-slate-400 mt-1">${time}</div>
             </div>
           </div>`;
+          
+          // Sound for visitor message
+          try { audio.play().catch(()=>{}); } catch(e){}
+
         } else {
           const time = new Date(msg.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
           html = `<div class="flex justify-end">
@@ -250,6 +285,22 @@
         return div.innerHTML;
       }
       
+      // Typing Outbound
+      replyMessage.addEventListener('input', function() {
+        const now = Date.now();
+        if (now - lastTypingSent > 4000) {
+            lastTypingSent = now;
+            fetch(`/admin/support/${conversationId}/typing`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json', 
+                    'X-CSRF-TOKEN': csrfToken, 
+                    'Accept': 'application/json' 
+                },
+            }).catch(()=>{});
+        }
+      });
+
       // SSE / Polling Logic
       function startStream() {
         if (usePollingFallback) {
@@ -274,6 +325,13 @@
                updateStatusUI(data.status_to);
                if (window.showToast) showToast({ tone: 'info', title: 'Status Update', message: `Conversation is now ${data.status_to}` });
            } catch(err) { console.error(err); }
+        });
+        
+        eventSource.addEventListener('typing', e => {
+           try {
+               const data = JSON.parse(e.data);
+               updateTypingIndicator(data.guest);
+           } catch(err) {} 
         });
         
         eventSource.onerror = () => {
@@ -309,6 +367,9 @@
             }
             if (data.conversation_status) {
                 updateStatusUI(data.conversation_status);
+            }
+            if (data.typing) {
+                updateTypingIndicator(data.typing.guest);
             }
           }
         } catch (e) {
