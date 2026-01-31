@@ -62,8 +62,8 @@ class DashboardController extends Controller
         $topPosts = Post::published()
             ->join('post_view_stats', 'posts.id', '=', 'post_view_stats.post_id')
             ->where('post_view_stats.date', '>=', $startDate)
-            ->selectRaw('posts.*, sum(post_view_stats.views) as views_count')
-            ->groupBy('posts.id')
+            ->selectRaw('posts.id, posts.title, posts.status, posts.published_at, sum(post_view_stats.views) as views_count')
+            ->groupBy('posts.id', 'posts.title', 'posts.status', 'posts.published_at')
             ->orderByDesc('views_count')
             ->limit(10)
             ->get();
