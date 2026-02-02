@@ -10,7 +10,7 @@
     {{-- Title --}}
     <div class="card p-6">
       <div>
-        <label class="text-sm font-medium text-text dark:text-slate-200">Title</label>
+        <label class="text-sm font-medium text-slate-700 dark:text-slate-200">Title</label>
         <input class="input mt-1 text-lg" name="title" value="{{ old('title', $post->title) }}" placeholder="Enter post title..." required autofocus />
         @error('title') <div class="text-xs text-red-600 mt-1">{{ $message }}</div> @enderror
       </div>
@@ -19,20 +19,20 @@
     {{-- Slug --}}
     <div class="card p-6">
       <div>
-        <label class="text-sm font-medium text-text dark:text-slate-200">Permalink</label>
+        <label class="text-sm font-medium text-slate-700 dark:text-slate-200">Permalink</label>
         <div class="flex items-center gap-2 mt-1">
-          <span class="text-sm text-text-muted dark:text-slate-400">{{ url('/posts/') }}/</span>
+          <span class="text-sm text-slate-500 dark:text-slate-400">{{ url('/posts/') }}/</span>
           <input class="input flex-1" name="slug" value="{{ old('slug', $post->slug) }}" placeholder="my-post-title" />
         </div>
         @error('slug') <div class="text-xs text-red-600 mt-1">{{ $message }}</div> @enderror
-        <div class="text-xs text-text-muted dark:text-slate-400 mt-1">Leave empty to auto-generate from title.</div>
+        <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Leave empty to auto-generate from title.</div>
       </div>
     </div>
 
     {{-- Content Editor --}}
     <div class="card p-6">
       <div>
-        <label class="text-sm font-medium text-text dark:text-slate-200">Content</label>
+        <label class="text-sm font-medium text-slate-700 dark:text-slate-200">Content</label>
         <textarea id="content" class="input mt-2 min-h-[400px] font-mono text-sm" name="content" placeholder="Write your content here...">{{ old('content', $post->content) }}</textarea>
         @error('content') <div class="text-xs text-red-600 mt-1">{{ $message }}</div> @enderror
       </div>
@@ -41,16 +41,16 @@
     {{-- Excerpt --}}
     <div class="card p-6">
       <div>
-        <label class="text-sm font-medium text-text dark:text-slate-200">Excerpt</label>
+        <label class="text-sm font-medium text-slate-700 dark:text-slate-200">Excerpt</label>
         <textarea class="input mt-2 min-h-[100px]" name="excerpt" placeholder="Optional. Write a short summary...">{{ old('excerpt', $post->excerpt) }}</textarea>
         @error('excerpt') <div class="text-xs text-red-600 mt-1">{{ $message }}</div> @enderror>
-        <div class="text-xs text-text-muted dark:text-slate-400 mt-1">Excerpts are optional hand-crafted summaries of your content.</div>
+        <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Excerpts are optional hand-crafted summaries of your content.</div>
       </div>
     </div>
 
     {{-- SEO Settings (Collapsible) --}}
     <details class="card overflow-hidden group">
-      <summary class="flex cursor-pointer items-center justify-between p-6 font-medium text-text-strong dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+      <summary class="flex cursor-pointer items-center justify-between p-6 font-medium text-slate-900 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
         <div class="flex items-center gap-2">
           <span class="material-icons-outlined text-lg text-primary">search</span>
           <span>SEO Settings</span>
@@ -59,17 +59,17 @@
       </summary>
       <div class="border-t border-border-light dark:border-border-dark p-6 space-y-4 bg-slate-50/50 dark:bg-slate-800/30">
         <div>
-          <label class="text-sm font-medium text-text dark:text-slate-200">Meta Title</label>
+          <label class="text-sm font-medium text-slate-700 dark:text-slate-200">Meta Title</label>
           <input class="input mt-1" name="meta_title" value="{{ old('meta_title', $post->meta_title ?? '') }}" placeholder="Custom title for search engines" />
-          <div class="text-xs text-text-muted dark:text-slate-400 mt-1">Leave empty to use post title.</div>
+          <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Leave empty to use post title.</div>
         </div>
         <div>
-          <label class="text-sm font-medium text-text dark:text-slate-200">Meta Description</label>
+          <label class="text-sm font-medium text-slate-700 dark:text-slate-200">Meta Description</label>
           <textarea class="input mt-1 min-h-[80px]" name="meta_description" placeholder="Custom description for search engines">{{ old('meta_description', $post->meta_description ?? '') }}</textarea>
-          <div class="text-xs text-text-muted dark:text-slate-400 mt-1">Leave empty to use excerpt or content summary.</div>
+          <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Leave empty to use excerpt or content summary.</div>
         </div>
         <div>
-          <label class="text-sm font-medium text-text dark:text-slate-200">Meta Keywords</label>
+          <label class="text-sm font-medium text-slate-700 dark:text-slate-200">Meta Keywords</label>
           <input class="input mt-1" name="meta_keywords" value="{{ old('meta_keywords', $post->meta_keywords ?? '') }}" placeholder="keyword1, keyword2, keyword3" />
         </div>
       </div>
@@ -82,12 +82,12 @@
     <div class="card p-6">
       <div class="flex items-center gap-2 mb-4">
         <span class="material-icons-outlined text-lg text-primary">publish</span>
-        <div class="text-sm font-semibold text-text-strong dark:text-white">Publish</div>
+        <div class="text-sm font-semibold text-slate-900 dark:text-white">Publish</div>
       </div>
       
       <div class="space-y-4">
         <div>
-          <label class="text-sm font-medium text-text dark:text-slate-200">Status</label>
+          <label class="text-sm font-medium text-slate-700 dark:text-slate-200">Status</label>
           <div class="relative mt-1">
             <select class="select" name="status">
               @foreach(['draft'=>'Draft','review'=>'Review','published'=>'Published'] as $k=>$v)
@@ -102,7 +102,7 @@
         </div>
 
         <div>
-          <label class="text-sm font-medium text-text dark:text-slate-200">Publish Date</label>
+          <label class="text-sm font-medium text-slate-700 dark:text-slate-200">Publish Date</label>
           <input type="datetime-local" class="input mt-1" name="published_at"
                  value="{{ old('published_at', optional($post->published_at)->format('Y-m-d\TH:i')) }}" />
           @error('published_at') <div class="text-xs text-red-600 mt-1">{{ $message }}</div> @enderror
@@ -123,13 +123,13 @@
       <div class="flex items-center justify-between gap-3 mb-3">
         <div class="flex items-center gap-2">
           <span class="material-icons-outlined text-lg text-amber-500">folder</span>
-          <div class="text-sm font-semibold text-text-strong dark:text-white">Categories</div>
+          <div class="text-sm font-semibold text-slate-900 dark:text-white">Categories</div>
         </div>
         <a class="text-xs text-primary hover:underline" href="{{ route('admin.categories.index') }}" target="_blank">+ Add new</a>
       </div>
 
       @if(($categories ?? collect())->count() === 0)
-        <p class="text-sm text-text-muted dark:text-slate-400">No categories yet.</p>
+        <p class="text-sm text-slate-500 dark:text-slate-400">No categories yet.</p>
       @else
         <div class="space-y-2 max-h-48 overflow-auto pr-1 custom-scrollbar">
           @foreach($categories as $cat)
@@ -149,13 +149,13 @@
       <div class="flex items-center justify-between gap-3 mb-3">
         <div class="flex items-center gap-2">
           <span class="material-icons-outlined text-lg text-blue-500">label</span>
-          <div class="text-sm font-semibold text-text-strong dark:text-white">Tags</div>
+          <div class="text-sm font-semibold text-slate-900 dark:text-white">Tags</div>
         </div>
         <a class="text-xs text-primary hover:underline" href="{{ route('admin.tags.index') }}" target="_blank">+ Add new</a>
       </div>
 
       @if(($tags ?? collect())->count() === 0)
-        <p class="text-sm text-text-muted dark:text-slate-400">No tags yet.</p>
+        <p class="text-sm text-slate-500 dark:text-slate-400">No tags yet.</p>
       @else
         <div class="space-y-2 max-h-48 overflow-auto pr-1 custom-scrollbar">
           @foreach($tags as $tag)
@@ -175,7 +175,7 @@
       <div class="flex items-center justify-between gap-3 mb-3">
         <div class="flex items-center gap-2">
           <span class="material-icons-outlined text-lg text-green-500">image</span>
-          <div class="text-sm font-semibold text-text-strong dark:text-white">Featured Image</div>
+          <div class="text-sm font-semibold text-slate-900 dark:text-white">Featured Image</div>
         </div>
       </div>
 

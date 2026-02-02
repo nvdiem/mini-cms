@@ -7,7 +7,7 @@
     </div>
     <div class="flex items-start justify-between gap-4">
       <div>
-        <h1 class="text-2xl font-semibold text-text-strong dark:text-white tracking-tight">{{ $package->name }}</h1>
+        <h1 class="text-2xl font-semibold text-slate-900 dark:text-white tracking-tight">{{ $package->name }}</h1>
         <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
           Created by {{ $package->creator->name }} on {{ $package->created_at->format('M j, Y') }}
         </p>
@@ -35,7 +35,7 @@
     <div class="lg:col-span-2 space-y-6">
       <!-- Status Card -->
       <div class="card p-6">
-        <h2 class="text-lg font-semibold text-text-strong dark:text-white mb-4">Package Status</h2>
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Package Status</h2>
         <div class="grid grid-cols-2 gap-4">
           <div>
             <div class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Status</div>
@@ -70,19 +70,19 @@
 
       <!-- Details Card -->
       <div class="card p-6">
-        <h2 class="text-lg font-semibold text-text-strong dark:text-white mb-4">Package Details</h2>
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Package Details</h2>
         <dl class="space-y-4">
           <div class="flex items-start justify-between border-b border-border-light dark:border-border-dark pb-3">
             <dt class="text-sm font-medium text-slate-600 dark:text-slate-400">Slug</dt>
-            <dd class="text-sm text-text-strong dark:text-white font-mono">{{ $package->slug }}</dd>
+            <dd class="text-sm text-slate-900 dark:text-white font-mono">{{ $package->slug }}</dd>
           </div>
           <div class="flex items-start justify-between border-b border-border-light dark:border-border-dark pb-3">
             <dt class="text-sm font-medium text-slate-600 dark:text-slate-400">Version</dt>
-            <dd class="text-sm text-text-strong dark:text-white font-mono">{{ $package->version }}</dd>
+            <dd class="text-sm text-slate-900 dark:text-white font-mono">{{ $package->version }}</dd>
           </div>
           <div class="flex items-start justify-between border-b border-border-light dark:border-border-dark pb-3">
             <dt class="text-sm font-medium text-slate-600 dark:text-slate-400">Entry File</dt>
-            <dd class="text-sm text-text-strong dark:text-white font-mono">{{ $package->entry_file }}</dd>
+            <dd class="text-sm text-slate-900 dark:text-white font-mono">{{ $package->entry_file }}</dd>
           </div>
           <div class="flex items-start justify-between border-b border-border-light dark:border-border-dark pb-3">
             <dt class="text-sm font-medium text-slate-600 dark:text-slate-400">Public URL</dt>
@@ -95,7 +95,7 @@
           @if($package->wire_contact)
             <div class="flex items-start justify-between">
               <dt class="text-sm font-medium text-slate-600 dark:text-slate-400">Form Selector</dt>
-              <dd class="text-sm text-text-strong dark:text-white font-mono">{{ $package->wire_selector }}</dd>
+              <dd class="text-sm text-slate-900 dark:text-white font-mono">{{ $package->wire_selector }}</dd>
             </div>
           @endif
         </dl>
@@ -103,15 +103,15 @@
 
       <!-- Technical Info -->
       <div class="card p-6">
-        <h2 class="text-lg font-semibold text-text-strong dark:text-white mb-4">Technical Information</h2>
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">Technical Information</h2>
         <dl class="space-y-4">
           <div class="flex items-start justify-between border-b border-border-light dark:border-border-dark pb-3">
             <dt class="text-sm font-medium text-slate-600 dark:text-slate-400">ZIP Path</dt>
-            <dd class="text-xs text-text-strong dark:text-white font-mono break-all">{{ $package->zip_path }}</dd>
+            <dd class="text-xs text-slate-900 dark:text-white font-mono break-all">{{ $package->zip_path }}</dd>
           </div>
           <div class="flex items-start justify-between">
             <dt class="text-sm font-medium text-slate-600 dark:text-slate-400">Public Directory</dt>
-            <dd class="text-xs text-text-strong dark:text-white font-mono break-all">{{ $package->public_dir }}</dd>
+            <dd class="text-xs text-slate-900 dark:text-white font-mono break-all">{{ $package->public_dir }}</dd>
           </div>
         </dl>
       </div>
@@ -121,7 +121,7 @@
     <div class="lg:col-span-1 space-y-6">
       <!-- Quick Actions -->
       <div class="card p-6">
-        <h3 class="text-sm font-semibold text-text-strong dark:text-white mb-4">Quick Actions</h3>
+        <h3 class="text-sm font-semibold text-slate-900 dark:text-white mb-4">Quick Actions</h3>
         <div class="space-y-2">
           <a href="{{ $package->public_url }}" target="_blank" class="btn-soft w-full justify-center">
             <span class="material-icons-outlined text-sm mr-2">open_in_new</span>
@@ -185,15 +185,15 @@
 
       <!-- Timestamps -->
       <div class="card p-6">
-        <h3 class="text-sm font-semibold text-text-strong dark:text-white mb-4">Timestamps</h3>
+        <h3 class="text-sm font-semibold text-slate-900 dark:text-white mb-4">Timestamps</h3>
         <dl class="space-y-3 text-sm">
           <div>
             <dt class="text-slate-600 dark:text-slate-400">Created</dt>
-            <dd class="text-text-strong dark:text-white mt-1">{{ $package->created_at->format('M j, Y g:i A') }}</dd>
+            <dd class="text-slate-900 dark:text-white mt-1">{{ $package->created_at->format('M j, Y g:i A') }}</dd>
           </div>
           <div>
             <dt class="text-slate-600 dark:text-slate-400">Updated</dt>
-            <dd class="text-text-strong dark:text-white mt-1">{{ $package->updated_at->format('M j, Y g:i A') }}</dd>
+            <dd class="text-slate-900 dark:text-white mt-1">{{ $package->updated_at->format('M j, Y g:i A') }}</dd>
           </div>
         </dl>
       </div>

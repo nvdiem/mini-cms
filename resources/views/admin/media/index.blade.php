@@ -1,8 +1,8 @@
 <x-admin.layout :title="'Media · Mini CMS'" :crumb="'Media'">
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
     <div>
-      <h1 class="text-2xl font-semibold text-text-strong dark:text-white tracking-tight">Media Library</h1>
-      <p class="text-sm text-text-muted dark:text-slate-400 mt-1">Upload to unsorted, then organize into folders.</p>
+      <h1 class="text-2xl font-semibold text-slate-900 dark:text-white tracking-tight">Media Library</h1>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Manage, organize, and upload media files.</p>
     </div>
   </div>
 
@@ -11,7 +11,7 @@
     <div class="lg:col-span-1 space-y-6">
       <!-- Upload Card -->
       <div class="card p-6">
-        <div class="text-sm font-semibold text-text-strong dark:text-white">Upload</div>
+        <div class="text-sm font-semibold text-slate-900 dark:text-white">Upload</div>
 
         @if ($errors->any())
           <div class="mt-4 p-3 rounded-lg border border-red-200 bg-red-50 text-sm text-red-700">
@@ -23,11 +23,11 @@
           @csrf
           <div>
             <label class="text-sm font-medium">File</label>
-            <input class="mt-2 block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary/10 file:text-primary hover:file:bg-primary/15"
+            <input class="mt-2 block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary/10 file:text-primary hover:file:bg-primary/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-200 border border-slate-200 rounded-lg bg-white text-slate-700"
                    type="file" name="file" accept="image/*" required/>
-            <div class="text-xs text-text-muted dark:text-slate-400 mt-2">Max 4MB. jpg/png/webp/gif.</div>
+            <div class="text-xs text-slate-500 mt-2">Max 4MB. jpg/png/webp/gif.</div>
           </div>
-          <button class="btn-primary w-full" type="submit">Upload</button>
+          <button class="btn-primary w-full py-2 shadow-sm" type="submit">Upload</button>
         </form>
       </div>
 
@@ -42,24 +42,24 @@
         <div class="p-2 space-y-1">
            <!-- All Media -->
            <a href="{{ route('admin.media.index', ['q'=>$q]) }}" 
-              class="flex items-center justify-between px-3 py-2 rounded-lg text-sm transition {{ ($folderParam === 'all' || !$folderParam) ? 'bg-primary/10 text-primary font-medium' : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800' }}">
+              class="flex items-center justify-between px-3 py-2 rounded-lg text-sm transition {{ ($folderParam === 'all' || !$folderParam) ? 'bg-slate-100 text-slate-900 font-medium' : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800' }}">
               <div class="flex items-center gap-2">
                  <span class="material-icons-outlined text-lg opacity-70">photo_library</span>
                  <span>All Media</span>
               </div>
-              <span class="text-xs font-medium px-1.5 py-0.5 rounded-full {{ ($folderParam === 'all') ? 'bg-primary/20 text-primary-dark' : 'bg-slate-100 text-slate-500 dark:bg-slate-700' }}">
+              <span class="text-xs font-medium px-2 py-0.5 rounded-full {{ ($folderParam === 'all') ? 'bg-white text-slate-700 border border-slate-200' : 'bg-slate-100 text-slate-700 dark:bg-slate-700' }}">
                 {{ $totalCount }}
               </span>
            </a>
 
            <!-- Unsorted -->
            <a href="{{ route('admin.media.index', ['folder'=>'none', 'q'=>$q]) }}" 
-              class="flex items-center justify-between px-3 py-2 rounded-lg text-sm transition {{ $folderParam === 'none' ? 'bg-primary/10 text-primary font-medium' : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800' }}">
+              class="flex items-center justify-between px-3 py-2 rounded-lg text-sm transition {{ $folderParam === 'none' ? 'bg-slate-100 text-slate-900 font-medium' : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800' }}">
               <div class="flex items-center gap-2">
                  <span class="material-icons-outlined text-lg opacity-70">folder_off</span>
                  <span>Unsorted</span>
               </div>
-              <span class="text-xs font-medium px-1.5 py-0.5 rounded-full {{ $folderParam === 'none' ? 'bg-primary/20 text-primary-dark' : 'bg-slate-100 text-slate-500 dark:bg-slate-700' }}">
+              <span class="text-xs font-medium px-2 py-0.5 rounded-full {{ $folderParam === 'none' ? 'bg-white text-slate-700 border border-slate-200' : 'bg-slate-100 text-slate-700 dark:bg-slate-700' }}">
                 {{ $unsortedCount }}
               </span>
            </a>
@@ -70,13 +70,13 @@
         </div>
         <div class="p-2 space-y-1 max-h-[300px] overflow-y-auto custom-scrollbar">
            @foreach($folders as $folder)
-             <div class="group flex items-center justify-between px-3 py-2 rounded-lg text-sm transition {{ $folderParam == $folder->id ? 'bg-primary/10 text-primary font-medium' : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800' }}">
+             <div class="group flex items-center justify-between px-3 py-2 rounded-lg text-sm transition {{ $folderParam == $folder->id ? 'bg-slate-100 text-slate-900 font-medium' : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800' }}">
                 <a href="{{ route('admin.media.index', ['folder'=>$folder->id, 'q'=>$q]) }}" class="flex items-center gap-2 flex-grow truncate">
-                   <span class="material-icons-outlined text-lg opacity-70 {{ $folderParam == $folder->id ? 'text-primary' : 'text-amber-400' }}">folder</span>
+                   <span class="material-icons-outlined text-lg opacity-70 {{ $folderParam == $folder->id ? 'text-slate-700' : 'text-amber-400' }}">folder</span>
                    <span class="truncate">{{ $folder->name }}</span>
                 </a>
                 <div class="flex items-center gap-1">
-                  <span class="text-xs font-medium px-1.5 py-0.5 rounded-full {{ $folderParam == $folder->id ? 'bg-primary/20 text-primary-dark' : 'bg-slate-100 text-slate-500 dark:bg-slate-700' }}">
+                  <span class="text-xs font-medium px-2 py-0.5 rounded-full {{ $folderParam == $folder->id ? 'bg-white text-slate-700 border border-slate-200' : 'bg-slate-100 text-slate-700 dark:bg-slate-700' }}">
                     {{ $folder->current_count }}
                   </span>
                   <!-- Edit/Delete Actions -->
@@ -91,7 +91,7 @@
              </div>
            @endforeach
            @if($folders->isEmpty())
-             <div class="px-3 py-4 text-center text-xs text-text-muted italic">No folders yet.</div>
+             <div class="px-3 py-4 text-center text-xs text-slate-600 italic">No folders yet.</div>
            @endif
         </div>
       </div>
@@ -106,13 +106,13 @@
              <input type="hidden" name="folder" value="{{ $folderParam }}">
           @endif
           <div class="relative w-full sm:w-80">
-            <input class="input pr-10" name="q" value="{{ $q }}" placeholder="Search current view..." />
+            <input class="input pr-10 focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-slate-200 focus:border-slate-300" name="q" value="{{ $q }}" placeholder="Search current view..." />
             <span class="material-icons-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true">search</span>
           </div>
-          <div class="flex gap-2 w-full sm:w-auto">
-            <button class="btn-primary w-full sm:w-auto" type="submit">Search</button>
+          <div class="flex items-center gap-2 w-full sm:w-auto">
+            <button class="btn bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm w-full sm:w-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-200 focus:border-slate-300" type="submit">Search</button>
             @if($q || ($folderParam && $folderParam !== 'all'))
-               <a class="btn-soft px-3 py-2" href="{{ route('admin.media.index') }}">Reset</a>
+               <a class="px-2 py-1 rounded-md text-sm text-slate-600 hover:text-slate-900 hover:underline dark:text-slate-400 dark:hover:text-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-200 transition-colors" href="{{ route('admin.media.index') }}">Clear</a>
             @endif
           </div>
         </form>
@@ -124,15 +124,15 @@
           <div class="mx-auto h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center">
             <span class="material-icons-outlined text-primary" aria-hidden="true">photo_library</span>
           </div>
-          <h2 class="mt-4 text-lg font-semibold text-text-strong dark:text-white">No media found</h2>
-          <p class="mt-1 text-sm text-text-muted dark:text-slate-400">
+          <h2 class="mt-4 text-lg font-semibold text-slate-900 dark:text-white">No media found</h2>
+          <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
              @if($q) No matches for "{{ $q }}". @else No media in this folder. @endif
           </p>
         </div>
       @else
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           @foreach($items as $m)
-            <div class="group relative card p-0 overflow-hidden hover:shadow-md transition">
+            <div class="group relative card p-0 overflow-hidden hover:shadow-md hover:bg-slate-50 transition">
               <div class="aspect-[4/3] bg-slate-100 dark:bg-slate-800 hover:opacity-90 transition relative">
                 <a href="{{ route('admin.media.show', $m) }}" class="block w-full h-full">
                    <img src="{{ $m->url() }}" alt="{{ $m->alt_text }}" class="h-full w-full object-cover"/>
@@ -145,7 +145,7 @@
                 <div class="flex items-center justify-between mt-1">
                    <div class="text-[10px] text-slate-500 truncate">{{ number_format($m->size/1024, 0) }} KB</div>
                    @if($m->folder)
-                     <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 truncate max-w-[60px]">{{ $m->folder->name }}</span>
+                     <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 truncate max-w-[60px]">{{ $m->folder->name }}</span>
                    @endif
                 </div>
               </div>
@@ -168,7 +168,7 @@
          @csrf
          <div class="mb-4">
            <label class="block text-sm font-medium mb-1">Name</label>
-           <input name="name" class="input w-full" placeholder="e.g. Blog Images" required maxlength="50">
+           <input name="name" class="input w-full focus:ring-slate-200 focus:border-slate-300 focus:outline-none focus-visible:ring-slate-200" placeholder="e.g. Blog Images" required maxlength="50">
          </div>
          <div class="flex justify-end gap-2">
            <button type="button" onclick="this.closest('dialog').close()" class="btn-ghost">Cancel</button>
@@ -186,7 +186,7 @@
          @csrf @method('PUT')
          <div class="mb-4">
            <label class="block text-sm font-medium mb-1">Name</label>
-           <input name="name" id="editFolderName" class="input w-full" required maxlength="50">
+           <input name="name" id="editFolderName" class="input w-full focus:ring-slate-200 focus:border-slate-300 focus:outline-none focus-visible:ring-slate-200" required maxlength="50">
          </div>
          <div class="flex justify-end gap-2">
            <button type="button" onclick="this.closest('dialog').close()" class="btn-ghost">Cancel</button>

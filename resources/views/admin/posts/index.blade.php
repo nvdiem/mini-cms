@@ -1,8 +1,8 @@
 <x-admin.layout :title="'Posts · Mini CMS'" :crumb="'Posts'">
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
     <div>
-      <h1 class="text-2xl font-semibold text-text-strong dark:text-white tracking-tight">Posts</h1>
-      <p class="text-sm text-text-muted dark:text-slate-400 mt-1">Laravel + Blade (no npm). Using mini_cms_templates_v2 UI.</p>
+      <h1 class="text-2xl font-semibold text-slate-900 dark:text-white tracking-tight">Posts</h1>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Create, review, and publish posts. Use search & filters to find content quickly.</p>
     </div>
     <div class="flex flex-wrap gap-2">
       <a class="btn-primary" href="{{ route('admin.posts.create') }}">
@@ -25,7 +25,7 @@
           <input type="hidden" name="trash" value="{{ request('trash') }}"/>
 
           <div class="relative w-full sm:w-48">
-            <select class="select text-sm" name="action" required>
+            <select class="select text-sm focus:ring-slate-200 focus:border-slate-300 focus:outline-none focus-visible:ring-slate-200" name="action" required>
               <option value="">{{ request('trash')==='1' ? 'Bulk Actions (Trash)' : 'Bulk Actions' }}</option>
               @if(request('trash')==='1')
                 <option value="restore">Restore</option>
@@ -49,12 +49,12 @@
           <input type="hidden" name="trash" value="{{ request('trash') }}"/>
 
           <div class="relative w-full sm:w-64">
-            <input class="input pr-10" name="q" value="{{ $q }}" placeholder="Search posts..." />
+            <input class="input pr-10 focus:ring-slate-200 focus:border-slate-300 focus:outline-none focus-visible:ring-slate-200" name="q" value="{{ $q }}" placeholder="Search posts..." />
             <span class="material-icons-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true">search</span>
           </div>
 
           <div class="relative w-full sm:w-36">
-            <select class="select" name="status">
+            <select class="select focus:ring-slate-200 focus:border-slate-300 focus:outline-none focus-visible:ring-slate-200" name="status">
               <option value="">All status</option>
               <option value="draft" {{ $status==='draft' ? 'selected' : '' }}>Draft</option>
               <option value="review" {{ $status==='review' ? 'selected' : '' }}>Review</option>
@@ -66,7 +66,7 @@
           </div>
 
           <div class="relative w-full sm:w-36">
-            <select class="select" name="tag">
+            <select class="select focus:ring-slate-200 focus:border-slate-300 focus:outline-none focus-visible:ring-slate-200" name="tag">
               <option value="">All tags</option>
               @foreach(($tags ?? []) as $tag)
                 <option value="{{ $tag->slug }}" {{ ($tagSlug ?? '') === $tag->slug ? 'selected' : '' }}>{{ $tag->name }}</option>
@@ -77,8 +77,8 @@
             </div>
           </div>
 
-          <button class="btn-ghost sm:w-auto" type="submit">Filter</button>
-          <a class="btn-soft px-3 py-2 sm:w-auto text-center" href="{{ route('admin.posts.index', ['trash' => request('trash')]) }}">Clear</a>
+          <button class="btn bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm sm:w-auto" type="submit">Filter</button>
+          <a class="px-2 py-1 rounded-md text-sm text-slate-600 hover:text-slate-900 hover:underline dark:text-slate-400 dark:hover:text-slate-200 focus-visible:ring-2 focus-visible:ring-slate-200 focus:outline-none transition-colors" href="{{ route('admin.posts.index', ['trash' => request('trash')]) }}">Clear</a>
         </form>
 
         {{-- Item Count --}}
@@ -93,8 +93,8 @@
         <div class="mx-auto h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center">
           <span class="material-icons-outlined text-primary" aria-hidden="true">inbox</span>
         </div>
-        <h2 class="mt-4 text-lg font-semibold text-text-strong dark:text-white">No posts found</h2>
-        <p class="mt-1 text-sm text-text-muted dark:text-slate-400">Adjust filters or create a new post.</p>
+        <h2 class="mt-4 text-lg font-semibold text-slate-900 dark:text-white">No posts found</h2>
+        <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Adjust filters or create a new post.</p>
         <div class="mt-5 flex justify-center gap-2">
           <a class="btn-primary" href="{{ route('admin.posts.create') }}">Create Post</a>
           <a class="btn-ghost" href="{{ route('admin.posts.index', ['trash' => request('trash')]) }}">Reset</a>
@@ -108,11 +108,11 @@
               <input class="chk mt-1 row-chk" type="checkbox" value="{{ $post->id }}" aria-label="Select post {{ $post->id }}"/>
               <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-2">
-                  <div class="font-medium text-text-strong dark:text-white truncate">{{ $post->title }}</div>
+                  <div class="font-medium text-slate-900 dark:text-white truncate">{{ $post->title }}</div>
                   <span class="badge {{ $post->status==='published' ? 'badge-pub' : 'badge-draft' }}">{{ ucfirst($post->status) }}</span>
                 </div>
 
-                <div class="mt-1 text-sm text-text-muted dark:text-slate-400">
+                <div class="mt-1 text-sm text-slate-600 dark:text-slate-400">
                   {{ $post->author?->name ?? '—' }}
                   · Updated {{ $post->updated_at->format('M j, Y') }}
                   @if($post->categories_count > 0) · {{ $post->categories_count }} categories @endif
@@ -161,7 +161,7 @@
           </thead>
           <tbody class="divide-y divide-border-light dark:divide-border-dark">
             @foreach($posts as $post)
-              <tr class="row group" data-post="p{{ $post->id }}">
+              <tr class="row group hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors" data-post="p{{ $post->id }}">
                 <td class="p-4"><input class="chk row-chk" type="checkbox" value="{{ $post->id }}" aria-label="Select post {{ $post->id }}"/></td>
                 <td class="td">
                   <div class="flex items-center gap-3">
@@ -171,8 +171,8 @@
                       <div class="h-9 w-12 rounded-md border border-border-light dark:border-border-dark bg-slate-100 dark:bg-slate-800"></div>
                     @endif
                     <div class="min-w-0">
-                      <div class="font-medium text-text-strong dark:text-white truncate">{{ $post->title }}</div>
-                      <div class="text-xs text-text-muted dark:text-slate-400 truncate">/{{ $post->slug }}</div>
+                      <div class="text-base font-medium text-slate-900 dark:text-white truncate">{{ $post->title }}</div>
+                      <div class="text-xs text-slate-400 leading-4 font-normal truncate mt-0.5">/{{ $post->slug }}</div>
                     </div>
                   </div>
                 </td>

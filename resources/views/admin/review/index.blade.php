@@ -1,8 +1,8 @@
 <x-admin.layout :title="'Review Queue · Mini CMS'" :crumb="'Review Queue'">
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
     <div>
-      <h1 class="text-2xl font-semibold text-text-strong dark:text-white tracking-tight">Review Queue</h1>
-      <p class="text-sm text-text-muted dark:text-slate-400 mt-1">Quick publish posts waiting for review.</p>
+      <h1 class="text-2xl font-semibold text-slate-900 dark:text-white tracking-tight">Review Queue</h1>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Quick publish posts waiting for review.</p>
     </div>
   </div>
 
@@ -10,7 +10,7 @@
     <div class="px-4 sm:px-6 py-3 bg-slate-50/70 dark:bg-slate-800/30 border-b border-border-light dark:border-border-dark">
       <form class="flex gap-3 items-center" method="GET" action="{{ route('admin.review.index') }}">
         <div class="relative w-full sm:w-80">
-          <input class="input pr-10" name="q" value="{{ $q }}" placeholder="Search posts in review..." />
+          <input class="input pr-10 focus:outline-none focus:ring-2 focus:ring-slate-200 focus:border-slate-300" name="q" value="{{ $q }}" placeholder="Search posts in review..." />
           <span class="material-icons-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true">search</span>
         </div>
         <button class="btn-ghost" type="submit">Search</button>
@@ -27,8 +27,8 @@
         <div class="mx-auto h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center">
           <span class="material-icons-outlined text-primary" aria-hidden="true">rate_review</span>
         </div>
-        <h2 class="mt-4 text-lg font-semibold text-text-strong dark:text-white">No posts in review</h2>
-        <p class="mt-1 text-sm text-text-muted dark:text-slate-400">All posts have been reviewed and published or are in draft.</p>
+        <h2 class="mt-4 text-lg font-semibold text-slate-900 dark:text-white">No posts in review</h2>
+        <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">All posts have been reviewed and published or are in draft.</p>
         <div class="mt-5">
           <a class="btn-primary" href="{{ route('admin.posts.index') }}">View All Posts</a>
         </div>
@@ -40,11 +40,11 @@
             <div class="flex items-start gap-3">
               <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-2">
-                  <div class="font-medium text-text-strong dark:text-white truncate">{{ $post->title }}</div>
+                  <div class="font-medium text-slate-900 dark:text-white truncate">{{ $post->title }}</div>
                   <span class="badge badge-draft">Review</span>
                 </div>
 
-                <div class="mt-1 text-sm text-text-muted dark:text-slate-400">
+                <div class="mt-1 text-sm text-slate-600 dark:text-slate-400">
                   {{ $post->author?->name ?? '—' }}
                   · Updated {{ $post->updated_at->format('M j, Y') }}
                 </div>
@@ -88,8 +88,8 @@
                       <div class="h-9 w-12 rounded-md border border-border-light dark:border-border-dark bg-slate-100 dark:bg-slate-800"></div>
                     @endif
                     <div class="min-w-0">
-                      <div class="font-medium text-text-strong dark:text-white truncate">{{ $post->title }}</div>
-                      <div class="text-xs text-text-muted dark:text-slate-400 truncate">/{{ $post->slug }}</div>
+                      <div class="font-medium text-slate-900 dark:text-white truncate">{{ $post->title }}</div>
+                      <div class="text-xs text-slate-600 dark:text-slate-400 truncate">/{{ $post->slug }}</div>
                     </div>
                   </div>
                 </td>

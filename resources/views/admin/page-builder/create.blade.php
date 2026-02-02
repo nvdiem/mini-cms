@@ -5,7 +5,7 @@
       <span class="material-icons-outlined text-xs">chevron_right</span>
       <span>Upload Package</span>
     </div>
-    <h1 class="text-2xl font-semibold text-text-strong dark:text-white tracking-tight">Upload Package</h1>
+    <h1 class="text-2xl font-semibold text-slate-900 dark:text-white tracking-tight">Upload Package</h1>
   </div>
 
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -33,7 +33,7 @@
 
           <!-- Name -->
           <div>
-            <label class="block text-sm font-medium text-text-strong dark:text-white mb-2">
+            <label class="block text-sm font-medium text-slate-900 dark:text-white mb-2">
               Package Name <span class="text-red-500">*</span>
             </label>
             <input 
@@ -51,7 +51,7 @@
 
           <!-- Slug -->
           <div>
-            <label class="block text-sm font-medium text-text-strong dark:text-white mb-2">
+            <label class="block text-sm font-medium text-slate-900 dark:text-white mb-2">
               Slug <span class="text-red-500">*</span>
             </label>
             <input 
@@ -72,7 +72,7 @@
 
           <!-- ZIP File -->
           <div>
-            <label class="block text-sm font-medium text-text-strong dark:text-white mb-2">
+            <label class="block text-sm font-medium text-slate-900 dark:text-white mb-2">
               ZIP File <span class="text-red-500">*</span>
             </label>
             <input 
@@ -100,7 +100,7 @@
                 onchange="document.getElementById('wire_selector_group').style.display = this.checked ? 'block' : 'none'"
               >
               <div class="flex-1">
-                <label for="wire_contact" class="block text-sm font-medium text-text-strong dark:text-white cursor-pointer">
+                <label for="wire_contact" class="block text-sm font-medium text-slate-900 dark:text-white cursor-pointer">
                   Enable Contact Form Integration
                 </label>
                 <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
@@ -110,7 +110,7 @@
             </div>
 
             <div id="wire_selector_group" class="mt-4 ml-7" style="display: {{ old('wire_contact', true) ? 'block' : 'none' }}">
-              <label class="block text-sm font-medium text-text-strong dark:text-white mb-2">
+              <label class="block text-sm font-medium text-slate-900 dark:text-white mb-2">
                 Form Selector (Optional)
               </label>
               <input 
@@ -142,7 +142,7 @@
     <div class="lg:col-span-1">
       <div class="card p-6 space-y-6">
         <div>
-          <h3 class="text-sm font-semibold text-text-strong dark:text-white mb-3 flex items-center gap-2">
+          <h3 class="text-sm font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
             <span class="material-icons-outlined text-lg text-primary">info</span>
             Requirements
           </h3>
@@ -163,7 +163,7 @@
         </div>
 
         <div class="border-t border-border-light dark:border-border-dark pt-6">
-          <h3 class="text-sm font-semibold text-text-strong dark:text-white mb-3 flex items-center gap-2">
+          <h3 class="text-sm font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
             <span class="material-icons-outlined text-lg text-blue-600">verified_user</span>
             Allowed Files
           </h3>
@@ -175,7 +175,7 @@
         </div>
 
         <div class="border-t border-border-light dark:border-border-dark pt-6">
-          <h3 class="text-sm font-semibold text-text-strong dark:text-white mb-3 flex items-center gap-2">
+          <h3 class="text-sm font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
             <span class="material-icons-outlined text-lg text-red-600">block</span>
             Blocked Files
           </h3>

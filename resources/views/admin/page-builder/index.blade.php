@@ -1,8 +1,8 @@
 <x-admin.layout :title="'Page Builder · Mini CMS'" :crumb="'Page Builder'">
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
     <div>
-      <h1 class="text-2xl font-semibold text-text-strong dark:text-white tracking-tight">Page Builder</h1>
-      <p class="text-sm text-text-muted dark:text-slate-400 mt-1">Upload and manage static HTML sites with contact form integration.</p>
+      <h1 class="text-2xl font-semibold text-slate-900 dark:text-white tracking-tight">Page Builder</h1>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Upload and manage static HTML sites with contact form integration.</p>
     </div>
     <a href="{{ route('admin.page-builder.create') }}" class="btn-primary">
       <span class="material-icons-outlined text-sm mr-1">upload_file</span>
@@ -15,8 +15,8 @@
       <div class="mx-auto h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center">
         <span class="material-icons-outlined text-primary" aria-hidden="true">web</span>
       </div>
-      <h2 class="mt-4 text-lg font-semibold text-text-strong dark:text-white">No packages yet</h2>
-      <p class="mt-1 text-sm text-text-muted dark:text-slate-400">
+      <h2 class="mt-4 text-lg font-semibold text-slate-900 dark:text-white">No packages yet</h2>
+      <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
         Upload your first static HTML package to get started.
       </p>
       <a href="{{ route('admin.page-builder.create') }}" class="btn-primary mt-4 inline-flex items-center">
@@ -28,7 +28,7 @@
     <div class="card overflow-hidden">
       <div class="overflow-x-auto">
         <table class="w-full">
-          <thead class="bg-slate-50/50 dark:bg-slate-800/50 border-b border-border-light dark:border-border-dark">
+          <thead class="bg-slate-50/70 dark:bg-slate-800/40 border-b border-border-light dark:border-border-dark">
             <tr>
               <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Name</th>
               <th class="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Slug</th>
@@ -42,7 +42,7 @@
             @foreach($packages as $package)
               <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition">
                 <td class="px-4 py-3">
-                  <a href="{{ route('admin.page-builder.show', $package) }}" class="font-medium text-text-strong dark:text-white hover:text-primary hover:underline">
+                  <a href="{{ route('admin.page-builder.show', $package) }}" class="font-medium text-slate-900 dark:text-white hover:text-primary hover:underline">
                     {{ $package->name }}
                   </a>
                 </td>

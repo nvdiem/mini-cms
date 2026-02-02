@@ -1,8 +1,8 @@
 <x-admin.layout :title="'Leads · Mini CMS'" :crumb="'Leads'">
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
     <div>
-      <h1 class="text-2xl font-semibold text-text-strong dark:text-white tracking-tight">Leads</h1>
-      <p class="text-sm text-text-muted dark:text-slate-400 mt-1">Manage contact form submissions.</p>
+      <h1 class="text-2xl font-semibold text-slate-900 dark:text-white tracking-tight">Leads</h1>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Review and manage contact form submissions.</p>
     </div>
   </div>
 
@@ -13,7 +13,7 @@
         <form id="bulkForm" class="flex flex-col sm:flex-row gap-2 sm:items-center" method="POST" action="{{ route('admin.leads.bulk') }}">
           @csrf
           <div class="relative w-full sm:w-48">
-            <select class="select text-sm" name="action" required>
+            <select class="select text-sm focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-slate-200 focus:border-slate-300" name="action" required>
               <option value="">Bulk Actions</option>
               <option value="new">Mark as New</option>
               <option value="handled">Mark as Handled</option>
@@ -34,12 +34,12 @@
         {{-- Search & Filters --}}
         <form class="flex flex-col sm:flex-row gap-2 sm:items-center flex-1" method="GET" action="{{ route('admin.leads.index') }}">
           <div class="relative w-full sm:w-64">
-            <input class="input pr-10" name="q" value="{{ $q }}" placeholder="Search leads..." />
+            <input class="input pr-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-200 focus:border-slate-300" name="q" value="{{ $q }}" placeholder="Search leads..." />
             <span class="material-icons-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true">search</span>
           </div>
 
           <div class="relative w-full sm:w-40">
-            <select class="select" name="status">
+            <select class="select focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-200 focus:border-slate-300" name="status">
               <option value="">All status</option>
               <option value="new" {{ $status==='new' ? 'selected' : '' }}>New</option>
               <option value="handled" {{ $status==='handled' ? 'selected' : '' }}>Handled</option>
@@ -50,8 +50,8 @@
             </div>
           </div>
 
-          <button class="btn-ghost sm:w-auto" type="submit">Filter</button>
-          <a class="btn-soft px-3 py-2 sm:w-auto text-center" href="{{ route('admin.leads.index') }}">Clear</a>
+          <button class="btn bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm sm:w-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-200 focus:border-slate-300" type="submit">Filter</button>
+          <a class="px-2 py-1 rounded-md text-sm text-slate-600 hover:text-slate-900 hover:underline dark:text-slate-400 dark:hover:text-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-200 transition-colors" href="{{ route('admin.leads.index') }}">Clear</a>
         </form>
 
         {{-- Item Count --}}
@@ -66,8 +66,8 @@
         <div class="mx-auto h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center">
           <span class="material-icons-outlined text-primary" aria-hidden="true">inbox</span>
         </div>
-        <h2 class="mt-4 text-lg font-semibold text-text-strong dark:text-white">No leads found</h2>
-        <p class="mt-1 text-sm text-text-muted dark:text-slate-400">Adjust filters or wait for new submissions.</p>
+        <h2 class="mt-4 text-lg font-semibold text-slate-900 dark:text-white">No leads found</h2>
+        <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Adjust filters or wait for new submissions.</p>
       </div>
     @else
       <div class="sm:hidden p-4 space-y-3">
@@ -77,11 +77,11 @@
               <input class="chk mt-1 row-chk" type="checkbox" value="{{ $lead->id }}" aria-label="Select lead" />
               <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-2">
-                  <div class="font-medium text-text-strong dark:text-white truncate">{{ $lead->name }}</div>
+                  <div class="font-medium text-slate-900 dark:text-white truncate">{{ $lead->name }}</div>
                   <span class="badge {{ $lead->status==='handled' ? 'badge-pub' : ($lead->status==='spam' ? 'badge-danger' : 'badge-draft') }}">{{ ucfirst($lead->status) }}</span>
                 </div>
 
-                <div class="mt-1 text-sm text-text-muted dark:text-slate-400">
+                <div class="mt-1 text-sm text-slate-600 dark:text-slate-400">
                   {{ $lead->email }}
                   @if($lead->phone) · {{ $lead->phone }} @endif
                   · {{ $lead->created_at->format('M j, Y') }}
@@ -110,17 +110,24 @@
           </thead>
           <tbody class="divide-y divide-border-light dark:divide-border-dark">
             @foreach($leads as $lead)
-              <tr class="row group">
+              <tr class="row group hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                 <td class="p-4"><input class="chk row-chk" type="checkbox" value="{{ $lead->id }}" aria-label="Select lead"/></td>
                 <td class="td">
-                  <div class="font-medium text-text-strong dark:text-white">{{ $lead->name }}</div>
-                  @if($lead->phone)<div class="text-xs text-text-muted dark:text-slate-400">{{ $lead->phone }}</div>@endif
+                  <div class="font-medium text-slate-900 dark:text-white">{{ $lead->name }}</div>
+                  @if($lead->phone)<div class="text-xs text-slate-400 leading-4">{{ $lead->phone }}</div>@endif
                 </td>
                 <td class="td text-slate-600 dark:text-slate-300">{{ $lead->email }}</td>
                 <td class="td"><span class="badge {{ $lead->status==='handled' ? 'badge-pub' : ($lead->status==='spam' ? 'badge-danger' : 'badge-draft') }}">{{ ucfirst($lead->status) }}</span></td>
                 <td class="td text-slate-500 dark:text-slate-400">{{ $lead->created_at->format('M j, Y') }}</td>
                 <td class="td text-right">
-                  <a href="{{ route('admin.leads.show', $lead) }}" class="btn-soft px-3 py-1.5">View</a>
+                  <details class="relative inline-block">
+                    <summary class="inline-flex items-center justify-center h-9 w-9 rounded-lg border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/25" aria-label="Open actions menu">
+                      <span class="material-icons-outlined text-[20px] text-slate-500 dark:text-slate-300" aria-hidden="true">more_horiz</span>
+                    </summary>
+                    <div class="absolute right-0 mt-2 w-32 rounded-xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark shadow-soft2 overflow-hidden z-10">
+                      <a href="{{ route('admin.leads.show', $lead) }}" class="block px-3 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300">View</a>
+                    </div>
+                  </details>
                 </td>
               </tr>
             @endforeach
