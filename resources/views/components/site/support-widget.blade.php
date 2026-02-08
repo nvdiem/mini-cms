@@ -119,6 +119,8 @@
   </div>
 </div>
 
+{{-- Pusher JS CDN --}}
+<script src="https://js.pusher.com/8.0/pusher.min.js"></script>
 <script>
 (function(){
   const STORAGE_KEY = 'support_visitor_token';
@@ -138,18 +140,23 @@
   const widgetMessages = document.getElementById('widgetMessages');
   const widgetInput = document.getElementById('widgetInput');
   const widgetSendBtn = document.getElementById('widgetSendBtn');
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
   
     // State
   let visitorToken = localStorage.getItem(STORAGE_KEY) || '';
   let lastMessageId = 0;
   let isOpen = false;
   let pollTimer = null;
-  let eventSource = null;
   let usePollingFallback = false;
   let hasConversation = false;
   let unreadCount = 0;
   let typingTimeout = null;
   let lastTypingSent = 0;
+  let conversationId = null;
+  
+  // Pusher
+  let pusher = null;
+  let channel = null;
   
   // Audio
   const pingSound = new Audio("data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU..."); // Placeholder or short beep
@@ -184,10 +191,7 @@
   document.addEventListener('touchstart', unlockAudio, { once: true }); 
 
   // Elements (add badge)
-  const badge = document.createElement('div');
-  badge.className = 'hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full shadow-sm';
-  badge.innerText = '0';
-  toggle.appendChild(badge);
+
 
   // Helper: Escape HTML
   function escapeHtml(text) {
@@ -210,11 +214,8 @@
   function updateUnreadUI() {
     if (unreadCount > 0) {
       document.title = `(${unreadCount}) Support - Mini CMS`;
-      badge.innerText = unreadCount > 9 ? '9+' : unreadCount;
-      badge.classList.remove('hidden');
     } else {
-      document.title = 'Support - Mini CMS'; // Reset to original?
-      badge.classList.add('hidden');
+      document.title = 'Support - Mini CMS'; 
     }
   }
 
@@ -228,9 +229,12 @@
     if (!visitorToken) return;
 
     try {
+      const headers = { 'Content-Type': 'application/json' };
+      if (csrfToken) headers['X-CSRF-TOKEN'] = csrfToken;
+      
       await fetch('/support/mark-read', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: headers,
         body: JSON.stringify({ visitor_token: visitorToken })
       });
     } catch(e) { console.error(e); }
@@ -348,7 +352,49 @@
     }
   }
   
-  // SSE / Polling Logic
+  // Pusher / Polling Logic
+  function initPusher() {
+    if (pusher) return;
+    
+    pusher = new Pusher('{{ env("PUSHER_APP_KEY") }}', {
+      cluster: '{{ env("PUSHER_APP_CLUSTER", "ap1") }}',
+      forceTLS: true
+    });
+    
+    pusher.connection.bind('error', function(err) {
+      console.warn('Pusher connection error, falling back to polling', err);
+      usePollingFallback = true;
+      startPolling();
+    });
+  }
+  
+  function subscribeToChannel() {
+    if (!conversationId || !pusher) return;
+    if (channel) return; // Already subscribed
+    
+    const channelName = 'support.conversation.' + conversationId;
+    channel = pusher.subscribe(channelName);
+    
+    channel.bind('support.message.created', function(data) {
+      appendMessage(data);
+    });
+    
+    channel.bind('support.typing', function(data) {
+      if (data.sender_type === 'agent') {
+        updateTypingIndicator(true);
+        // Auto-clear typing after 3 seconds
+        clearTimeout(typingTimeout);
+        typingTimeout = setTimeout(() => updateTypingIndicator(false), 3000);
+      }
+    });
+    
+    channel.bind('pusher:subscription_error', function(status) {
+      console.warn('Pusher subscription error:', status);
+      usePollingFallback = true;
+      startPolling();
+    });
+  }
+  
   function startStream() {
     if (!visitorToken || !isOpen) return;
 
@@ -356,43 +402,17 @@
       startPolling();
       return;
     }
-
-    if (eventSource) return;
-
-    // Use SSE
-    const url = `/support/stream?visitor_token=${encodeURIComponent(visitorToken)}&after_id=${lastMessageId}`;
-    eventSource = new EventSource(url);
     
-    eventSource.addEventListener('message.created', function(e) {
-      try {
-        const msg = JSON.parse(e.data);
-        appendMessage(msg);
-      } catch(err) {
-        console.error('SSE Parse error', err);
-      }
-    });
-
-    eventSource.addEventListener('typing', function(e) {
-       try {
-         const data = JSON.parse(e.data);
-         updateTypingIndicator(data.admin);
-       } catch(err) {}
-    });
-
-    eventSource.onerror = function() {
-      // Fallback to polling on error
-      console.warn('SSE disconnected, switching to polling.');
-      eventSource.close();
-      eventSource = null;
-      usePollingFallback = true;
-      startPolling();
-    };
+    // Initialize Pusher and subscribe
+    initPusher();
+    subscribeToChannel();
   }
 
   function stopStream() {
-    if (eventSource) {
-      eventSource.close();
-      eventSource = null;
+    if (channel) {
+      channel.unbind_all();
+      if (pusher) pusher.unsubscribe('support.conversation.' + conversationId);
+      channel = null;
     }
     stopPolling();
   }
@@ -458,7 +478,10 @@
     try {
       const response = await fetch('/support/first-message', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json' 
+        },
         body: JSON.stringify({
           name,
           email: email || null,
@@ -474,6 +497,9 @@
         if (data.ok) {
           visitorToken = data.visitor_token;
           localStorage.setItem(STORAGE_KEY, visitorToken);
+          
+          // Capture conversation ID for Pusher subscription
+          if (data.conversation_id) conversationId = data.conversation_id;
           
           if (data.last_message_id) lastMessageId = Math.max(lastMessageId, data.last_message_id);
           
@@ -512,7 +538,10 @@
     try {
       const response = await fetch('/support/messages', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json' 
+        },
         body: JSON.stringify({
           visitor_token: visitorToken,
           message,
@@ -550,6 +579,9 @@
       if (response.ok) {
         const data = await response.json();
         if (data.ok) {
+            // Capture conversation ID for Pusher subscription
+            if (data.conversation_id) conversationId = data.conversation_id;
+            
             // Unread Count
             if (data.unread_count) {
                 unreadCount = data.unread_count;

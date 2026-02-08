@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\SupportMessageCreated;
+use App\Events\SupportTyping;
 use App\Models\SupportConversation;
 use App\Models\SupportMessage;
 use Illuminate\Http\Request;
@@ -132,9 +134,13 @@ class PublicSupportController extends Controller
             ['message_id' => $message->id]
         );
 
+        // Broadcast the message via Pusher
+        event(new SupportMessageCreated($message));
+
         return response()->json([
             'ok' => true,
             'visitor_token' => $visitorToken,
+            'conversation_id' => $conversation->id,
             'conversation_status' => $conversation->status,
             'last_message_id' => $message->id,
             'is_new' => $isNewConversation,
@@ -215,6 +221,9 @@ class PublicSupportController extends Controller
             ['message_id' => $message->id]
         );
 
+        // Broadcast the message via Pusher
+        event(new SupportMessageCreated($message));
+
         return response()->json([
             'ok' => true,
             'last_message_id' => $message->id,
@@ -262,6 +271,10 @@ class PublicSupportController extends Controller
 
         if ($conversation) {
             \Illuminate\Support\Facades\Cache::put("support:typing:guest:{$conversation->id}", time(), 10);
+            
+            // Broadcast typing event via Pusher
+            event(new SupportTyping($conversation->id, 'visitor', true));
+            
             return response()->json(['ok' => true]);
         }
 
@@ -320,6 +333,7 @@ class PublicSupportController extends Controller
 
         return response()->json([
             'ok' => true,
+            'conversation_id' => $conversation->id,
             'messages' => $messages->values(),
             'last_message_id' => $lastMessageId,
             'conversation_status' => $conversation->status,

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\SupportMessageCreated;
+use App\Events\SupportTyping;
 use App\Http\Controllers\Controller;
 use App\Models\SupportConversation;
 use App\Models\SupportMessage;
@@ -84,6 +86,10 @@ class SupportController extends Controller
     public function typing(Request $request, $id)
     {
         \Illuminate\Support\Facades\Cache::put("support:typing:admin:{$id}", time(), 10);
+        
+        // Broadcast typing event via Pusher
+        event(new SupportTyping((int) $id, 'agent', true));
+        
         return response()->json(['ok' => true]);
     }
 
@@ -130,6 +136,9 @@ class SupportController extends Controller
                 'user_id' => auth()->id(),
             ]
         );
+
+        // Broadcast the message via Pusher
+        event(new SupportMessageCreated($message));
 
         if ($request->wantsJson()) {
             return response()->json([

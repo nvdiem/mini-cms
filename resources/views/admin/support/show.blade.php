@@ -238,6 +238,7 @@
         animation: fade-in 0.3s ease-out;
       }
     </style>
+    <script src="https://js.pusher.com/8.0/pusher.min.js"></script>
     <script>
     (function(){
       const conversationId = {{ $conversation->id }};
@@ -249,11 +250,15 @@
       const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
       
       let lastMessageId = {{ $conversation->messages->last()?->id ?? 0 }};
-      let eventSource = null;
       let usePollingFallback = false;
       let pollTimer = null;
       let lastTypingSent = 0;
       let unreadInSession = 0;
+      let typingTimeout = null;
+      
+      // Pusher
+      let pusher = null;
+      let channel = null;
       
       // Audio
       const audio = new Audio('/sounds/ping.mp3');
@@ -413,52 +418,73 @@
         }
       });
 
-      // SSE / Polling Logic
+      // Pusher / Polling Logic
+      function initPusher() {
+        if (pusher) return;
+        
+        pusher = new Pusher('{{ env("PUSHER_APP_KEY") }}', {
+          cluster: '{{ env("PUSHER_APP_CLUSTER", "ap1") }}',
+          forceTLS: true
+        });
+        
+        pusher.connection.bind('error', function(err) {
+          console.warn('Pusher connection error, falling back to polling', err);
+          usePollingFallback = true;
+          startPolling();
+        });
+      }
+      
+      function subscribeToChannel() {
+        if (!pusher) return;
+        if (channel) return; // Already subscribed
+        
+        const channelName = 'support.conversation.' + conversationId;
+        channel = pusher.subscribe(channelName);
+        
+        channel.bind('support.message.created', function(data) {
+          appendMessage(data);
+          // Play sound for visitor messages
+          if (data.sender_type === 'visitor') {
+            if (!document.hasFocus()) {
+              unreadInSession++;
+              updateTitle();
+            }
+            try { audio.play().catch(()=>{}); } catch(e){}
+          }
+        });
+        
+        channel.bind('support.typing', function(data) {
+          if (data.sender_type === 'visitor') {
+            updateTypingIndicator(true);
+            // Auto-clear typing after 3 seconds
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => updateTypingIndicator(false), 3000);
+          }
+        });
+        
+        channel.bind('pusher:subscription_error', function(status) {
+          console.warn('Pusher subscription error:', status);
+          usePollingFallback = true;
+          startPolling();
+        });
+      }
+      
       function startStream() {
         if (usePollingFallback) {
             startPolling();
             return;
         }
-        if (eventSource) return;
-
-        const url = `/admin/support/${conversationId}/stream?after_id=${lastMessageId}`;
-        eventSource = new EventSource(url, { withCredentials: true });
         
-        eventSource.addEventListener('message.created', e => {
-           try {
-               const msg = JSON.parse(e.data);
-               appendMessage(msg);
-           } catch(err) { console.error(err); }
-        });
-        
-        eventSource.addEventListener('conversation.status_changed', e => {
-           try {
-               const data = JSON.parse(e.data);
-               updateStatusUI(data.status_to);
-               if (window.showToast) showToast({ tone: 'info', title: 'Status Update', message: `Conversation is now ${data.status_to}` });
-           } catch(err) { console.error(err); }
-        });
-        
-        eventSource.addEventListener('typing', e => {
-           try {
-               const data = JSON.parse(e.data);
-               updateTypingIndicator(data.guest);
-           } catch(err) {} 
-        });
-        
-        eventSource.onerror = () => {
-            console.warn('SSE Disconnected. Switching to polling.');
-            eventSource.close();
-            eventSource = null;
-            usePollingFallback = true;
-            startPolling();
-        };
+        // Initialize Pusher and subscribe
+        initPusher();
+        subscribeToChannel();
       }
 
       function stopStream() {
-          if (eventSource) {
-              eventSource.close();
-              eventSource = null;
+          if (channel) {
+              channel.unbind_all();
+              if (pusher) pusher.unsubscribe('support.conversation.' + conversationId);
+              channel = null;
           }
           stopPolling();
       }
@@ -533,7 +559,6 @@
               appendMessage(data.message);
             }
             replyMessage.value = '';
-            showToast({ tone: 'success', title: 'Sent', message: 'Reply sent successfully.' });
           } else {
             const errorData = await response.text();
             console.error('Reply error:', response.status, errorData);

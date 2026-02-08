@@ -126,13 +126,17 @@ Session persistence: visitor_token in localStorage
 
 2.2 Realtime & Reliability
 
-Primary: SSE (Server-Sent Events)
+Primary: Pusher Channels (WebSocket via SaaS)
 
-Fallback: polling (4s) if SSE fails
+Fallback: polling (4s) if Pusher connection fails
 
-Resume: supports Last-Event-ID to re-deliver missed messages after reconnect
+Events:
+  - SupportMessageCreated: broadcast on message create
+  - SupportTyping: broadcast typing indicators
 
-Heartbeat: SSE ping events keep connections alive on shared hosting/proxies
+Channel: support.conversation.{conversation_id} (public)
+
+Config: BROADCAST_DRIVER=pusher in .env (requires PUSHER_APP_ID, KEY, SECRET, CLUSTER)
 
 2.3 Message Types (IMPORTANT — keep consistent)
 
