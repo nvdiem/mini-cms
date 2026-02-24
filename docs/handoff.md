@@ -1,367 +1,410 @@
-Mini CMS (Laravel + Blade, No NPM) — Project Status & Handoff (Master)
+  Mini CMS (Laravel + Blade, No NPM) — Project Status & Handoff (Master)
 
-As of: 2026-01-31
+  As of: 2026-01-31
 
-0) Environment & Constraints
+  0) Environment & Constraints
 
-Stack: Laravel + MySQL (Laragon Windows)
+  Stack: Laravel + MySQL (Laragon Windows)
 
-Views: Blade only
+  Views: Blade only
 
-Frontend: Tailwind via CDN (no Vite, no npm)
+  Frontend: Tailwind via CDN (no Vite, no npm)
 
-Auth: Custom (no Breeze)
+  Auth: Custom (no Breeze)
 
-UI Base: mini_cms_templates_v2 (calm theme tokens, admin layout, responsive list)
+  UI Base: mini_cms_templates_v2 (calm theme tokens, admin layout, responsive list)
 
-Must keep: confirm modal, toast + undo, mobile card view, calm colors for long usage
+  Must keep: confirm modal, toast + undo, mobile card view, calm colors for long usage
 
-1) Implemented Features (Done)
-1.1 Authentication & Roles
+  1) Implemented Features (Done)
+  1.1 Authentication & Roles
 
-Roles: admin (full), editor (content only)
+  Roles: admin (full), editor (content only)
 
-is_active gate (disabled users cannot login)
+  is_active gate (disabled users cannot login)
 
-Admin middleware protects sensitive routes
+  Admin middleware protects sensitive routes
 
-Demo users:
+  Demo users:
 
-admin@local.test / 123456
+  admin@local.test / 123456
 
-editor@local.test / 123456
+  editor@local.test / 123456
 
-1.2 User Management (Admin only)
+  1.2 User Management (Admin only)
 
-CRUD: /admin/users
+  CRUD: /admin/users
 
-Security: admin cannot disable self
+  Security: admin cannot disable self
 
-UI badges for role/status
+  UI badges for role/status
 
-1.3 Analytics Dashboard
+  1.3 Analytics Dashboard
 
-/admin SaaS-style dashboard
+  /admin SaaS-style dashboard
 
-Chart.js: Daily Views vs Leads (7/14/30 days)
+  Chart.js: Daily Views vs Leads (7/14/30 days)
 
-KPI cards + Activity feed + Top content table
+  KPI cards + Activity feed + Top content table
 
-1.4 Activity Logging
+  1.4 Activity Logging
 
-activity_logs table with meta JSON
+  activity_logs table with meta JSON
 
-Helper activity_log() auto-detects user/subject + generates links
+  Helper activity_log() auto-detects user/subject + generates links
 
-Integrated for: posts/pages/leads/settings (incl bulk/restore/publish actions)
+  Integrated for: posts/pages/leads/settings (incl bulk/restore/publish actions)
 
-1.5 Media Module (Phases A/B/C)
+  1.5 Media Module (Phases A/B/C)
 
-Safe delete: prevent removing media used in posts/pages
+  Safe delete: prevent removing media used in posts/pages
 
-Metadata: alt_text, caption, width, height
+  Metadata: alt_text, caption, width, height
 
-Media detail page: /admin/media/{id}
+  Media detail page: /admin/media/{id}
 
-Folders with sidebar counts (counts respect current search)
+  Folders with sidebar counts (counts respect current search)
 
-Upload captures image dimensions
+  Upload captures image dimensions
 
-Reusable <x-media-picker> modal:
+  Reusable <x-media-picker> modal:
 
-search + folder filter + grid
+  search + folder filter + grid
 
-smart resizing (aspect ratio lock)
+  smart resizing (aspect ratio lock)
 
-integrates with TinyMCE + featured image
+  integrates with TinyMCE + featured image
 
-1.6 SEO
+  1.6 SEO
 
-/sitemap.xml dynamic for posts/pages
+  /sitemap.xml dynamic for posts/pages
 
-/robots.txt dynamic
+  /robots.txt dynamic
 
-Canonical + Noindex for non-public pages
+  Canonical + Noindex for non-public pages
 
-1.7 Editor UI (WordPress-style)
+  1.7 Editor UI (WordPress-style)
 
-Posts/Pages create/edit: 2-column layout
+  Posts/Pages create/edit: 2-column layout
 
-Right sidebar: publish box, taxonomy (posts), featured image
+  Right sidebar: publish box, taxonomy (posts), featured image
 
-Responsive on mobile
+  Responsive on mobile
 
-1.8 TinyMCE 6
+  1.8 TinyMCE 6
 
-Location: public/js/tinymce/tinymce.min.js (GPL)
+  Location: public/js/tinymce/tinymce.min.js (GPL)
 
-Plugins: lists, link, code, table, fullscreen, image
+  Plugins: lists, link, code, table, fullscreen, image
 
-Toolbar: undo/redo, blocks, bold/italic, lists, link, table, media, code, fullscreen
+  Toolbar: undo/redo, blocks, bold/italic, lists, link, table, media, code, fullscreen
 
-1.9 Core Modules
+  1.9 Core Modules
 
-Posts: CRUD, SEO, tags/cats, review workflow, view tracking (post_view_stats)
+  Posts: CRUD, SEO, tags/cats, review workflow, view tracking (post_view_stats)
 
-Pages: CRUD, SEO, logging
+  Pages: CRUD, SEO, logging
 
-Taxonomies: categories, tags
+  Taxonomies: categories, tags
 
-Leads: public submit + admin management (status workflow + logging)
+  Leads: public submit + admin management (status workflow + logging)
 
-Settings: global config via setting()/setting_set() + logging
+  Settings: global config via setting()/setting_set() + logging
 
-Page Builder: upload ZIP static sites, safe extract, auto-wire contact forms, public serve /b/{slug}
+  Page Builder: upload ZIP static sites, safe extract, auto-wire contact forms, public serve /b/{slug}
 
-2) Chat Support Module (Sprints 9 / 9.1 / 9.2) 💬
-2.1 Core UX
+  2) Chat Support Module (Sprints 9 / 9.1 / 9.2) 💬
+  2.1 Core UX
 
-Guest floating widget on all public pages
+  Guest floating widget on all public pages
 
-First message: name + optional email + message
+  First message: name + optional email + message
 
-Session persistence: visitor_token in localStorage
+  Session persistence: visitor_token in localStorage
 
-72h idle: system message --- New session started ---
+  72h idle: system message --- New session started ---
 
-2.2 Realtime & Reliability
+  2.2 Realtime & Reliability
 
-Primary: Pusher Channels (WebSocket via SaaS)
+  Primary: Pusher Channels (WebSocket via SaaS)
 
-Fallback: polling (4s) if Pusher connection fails
+  Fallback: polling (4s) if Pusher connection fails
 
-Events:
-  - SupportMessageCreated: broadcast on message create
-  - SupportTyping: broadcast typing indicators
+  Events:
+    - SupportMessageCreated: broadcast on message create
+    - SupportTyping: broadcast typing indicators
 
-Channel: support.conversation.{conversation_id} (public)
+  Channel: support.conversation.{conversation_id} (public)
 
-Config: BROADCAST_DRIVER=pusher in .env (requires PUSHER_APP_ID, KEY, SECRET, CLUSTER)
+  Config: BROADCAST_DRIVER=pusher in .env (requires PUSHER_APP_ID, KEY, SECRET, CLUSTER)
 
-2.3 Message Types (IMPORTANT — keep consistent)
+  2.3 Message Types (IMPORTANT — keep consistent)
 
-support_messages.sender_type values used in logic:
+  support_messages.sender_type values used in logic:
 
-visitor (guest)
+  visitor (guest)
 
-agent (admin/editor)
+  agent (admin/editor)
 
-system (session reset markers)
+  system (session reset markers)
 
-Unread logic depends on these values.
+  Unread logic depends on these values.
 
-2.4 Unread System (read_at)
+  2.4 Unread System (read_at)
 
-Each message has read_at
+  Each message has read_at
 
-Admin unread: visitor messages where read_at IS NULL
+  Admin unread: visitor messages where read_at IS NULL
 
-Guest unread: agent messages where read_at IS NULL
+  Guest unread: agent messages where read_at IS NULL
 
-Mark-read rules:
+  Mark-read rules:
 
-Admin opens /admin/support/{id} → mark visitor msgs read
+  Admin opens /admin/support/{id} → mark visitor msgs read
 
-Guest opens widget → mark agent msgs read
+  Guest opens widget → mark agent msgs read
 
-2.5 Typing Indicators (No WebSocket)
+  2.5 Typing Indicators (No WebSocket)
 
-Guest typing → cache key support:typing:guest:{conversation_id}
+  Guest typing → cache key support:typing:guest:{conversation_id}
 
-Admin typing → cache key support:typing:admin:{conversation_id}
+  Admin typing → cache key support:typing:admin:{conversation_id}
 
-typing=true if timestamp within last 3 seconds
+  typing=true if timestamp within last 3 seconds
 
-2.6 Notifications & UI (Admin)
+  2.6 Notifications & UI (Admin)
 
-Inbox /admin/support:
+  Inbox /admin/support:
 
-per-conversation numeric badge (99+ cap)
+  per-conversation numeric badge (99+ cap)
 
-Sidebar “Support” menu:
+  Sidebar “Support” menu:
 
-subtle red dot if total unread > 0 (no number)
+  subtle red dot if total unread > 0 (no number)
 
-Navbar bell:
+  Navbar bell:
 
-numeric total unread badge (99+ cap)
+  numeric total unread badge (99+ cap)
 
-title sync (n) ... and sound ping on new message (audio unlock pattern)
+  title sync (n) ... and sound ping on new message (audio unlock pattern)
 
-2.7 Status Rules
+  2.7 Status Rules
 
-Visitor message → open
+  Visitor message → open
 
-Agent reply → pending
+  Agent reply → pending
 
-Agent can set closed
+  Agent can set closed
 
-Visitor message while closed → auto reopen open
+  Visitor message while closed → auto reopen open
 
-3) Current Routes (web.php)
-Frontend
+  2.8 E-commerce Module (Phase 1 MVP) 🛒
+  2.8.1 Architecture & Models
+  - Products: title, slug, description (TinyMCE), SEO, featured_image_id.
+  - Options & Variants: Up to 3 options (e.g. Size, Color). Cartesian product generation.
+  - Inventory: variant level stock_qty with transaction safety (lockForUpdate).
+  - Orders: Unique order_no (ORD-YYYYMMDD-XXXXX), status workflow.
+  - Snapshots: items table stores price/title/signature at time of order.
 
-GET / → site.home
+  2.8.2 Cart & Checkout
+  - Cart: Session-based (`shop_cart`). Stock clamping on add/update.
+  - Checkout: COD only. Note/Address/Phone validation.
+  - Business Rules: Soft deletes on products/variants. Active/Published gates.
 
-GET /posts/{slug} → post show (unique daily view tracking)
+  2.8.3 Admin UI
+  - Products Index: Filters (status, stock), mobile results.
+  - Product Editor: 2-column layout, options builder, variant matrix (inline edit).
+  - Orders: Status transitions (new → confirmed → packed → shipped → completed).
+  - Shop Settings: Fixed shipping fee, COD instructions.
 
-GET /p/{slug} → page show
+  3) Current Routes (web.php)
+  Frontend
 
-GET /contact, POST /contact
+  GET / → site.home
 
-GET /sitemap.xml, GET /robots.txt
+  GET /posts/{slug} → post show (unique daily view tracking)
 
-GET /b/{slug}/{path?} → pagebuilder serve
+  GET /p/{slug} → page show
 
-POST /lead → pagebuilder leads
+  GET /contact, POST /contact
 
-Public Support
+  GET /sitemap.xml, GET /robots.txt
 
-POST /support/first-message
+  GET /b/{slug}/{path?} → pagebuilder serve
 
-POST /support/messages
+  POST /lead → pagebuilder leads
 
-GET /support/messages (poll)
+  Public Shop
+  GET /shop → catalog list
+  GET /shop/{slug} → product detail
+  GET /cart → cart view
+  POST /cart/add, POST /cart/update, POST /cart/remove
+  GET /checkout, POST /checkout
+  GET /order/{order_no}/thank-you
 
-GET /support/stream (SSE)
 
-POST /support/typing
+  Public Support
 
-POST /support/mark-read ✅
+  POST /support/first-message
 
-Admin Support (Admin/Editor)
+  POST /support/messages
 
-GET /admin/support
+  GET /support/messages (poll)
 
-GET /admin/support/unread-count (lightweight poll for global badge)
+  GET /support/stream (SSE)
 
-GET /admin/support/{id}
+  POST /support/typing
 
-GET /admin/support/{id}/messages (poll)
+  POST /support/mark-read ✅
 
-GET /admin/support/{id}/stream (SSE)
+  Admin Support (Admin/Editor)
 
-POST /admin/support/{id}/messages (reply)
+  GET /admin/support
 
-POST /admin/support/{id}/status
+  GET /admin/support/unread-count (lightweight poll for global badge)
 
-POST /admin/support/{id}/typing
+  GET /admin/support/{id}
 
-POST /admin/support/{id}/mark-read ✅
+  GET /admin/support/{id}/messages (poll)
 
-4) Database Schema (Key Tables)
+  GET /admin/support/{id}/stream (SSE)
 
-users (role, is_active)
+  POST /admin/support/{id}/messages (reply)
 
-posts, pages (SEO fields, featured_image_id)
+  POST /admin/support/{id}/status
 
-media, media_folders
+  POST /admin/support/{id}/typing
 
-leads
+  POST /admin/support/{id}/mark-read ✅
 
-post_view_stats (unique per post/day)
+  4) Database Schema (Key Tables)
 
-activity_logs (meta JSON)
+  users (role, is_active)
 
-page_packages
+  posts, pages (SEO fields, featured_image_id)
 
-support_conversations
+  media, media_folders
 
-support_messages (sender_type, read_at)
+  leads
 
-5) Code / Folder Notes
+  post_view_stats (unique per post/day)
 
-Helpers: app/helpers.php → setting(), setting_set(), activity_log()
+  activity_logs (meta JSON)
 
-Controllers:
+  page_packages
 
-PublicSupportController
+  support_conversations
 
-Admin\SupportController
+  support_messages (sender_type, read_at)
 
-Views:
+  products, product_options, product_option_values
+  product_variants, product_variant_values
+  orders, order_items
 
-Admin support: resources/views/admin/support/index.blade.php, show.blade.php
 
-Guest widget: resources/views/components/site/support-widget.blade.php
+  5) Code / Folder Notes
 
-TinyMCE: public/js/tinymce/tinymce.min.js
+  Helpers: app/helpers.php → setting(), setting_set(), activity_log()
 
-6) Throttling Notes
+  Controllers:
 
-Current limits may be tuned for test/staging. For production (shared hosting) consider lowering:
+  PublicSupportController
 
-first-message: 10/min
+  Admin\SupportController
 
-send: 12/min
+  Views:
 
-poll: 60/min
+  Admin support: resources/views/admin/support/index.blade.php, show.blade.php
 
-stream: 60/min
-Typing: 10–30/min is sufficient.
+  Guest widget: resources/views/components/site/support-widget.blade.php
 
-7) Regression Checklist (Chat Support)
+  TinyMCE: public/js/tinymce/tinymce.min.js
 
-SSE keeps alive > 5 minutes (heartbeat)
+  6) Throttling Notes
 
-Network drop + reconnect → missed messages delivered (Last-Event-ID resume)
+  Current limits may be tuned for test/staging. For production (shared hosting) consider lowering:
 
-Unread counts correct for admin & guest (read_at, mark-read)
+  first-message: 10/min
 
-Typing works both directions (<=3s window)
+  send: 12/min
 
-Audio ping only after user interaction (no autoplay errors)
+  poll: 60/min
 
-Title (n) sync updates immediately on mark-read
+  stream: 60/min
+  Typing: 10–30/min is sufficient.
 
-8) Project Status
-- **Core Features**: Complete & Stable.
-- **Chat Support**: Complete (Sprint 9.2).
-- **Next Steps**: Maintenance & Bug fixing as needed.
+  7) Regression Checklist (Chat Support)
 
-9) Handoff Prompt (for another AI)
+  SSE keeps alive > 5 minutes (heartbeat)
 
-PROMPT START
-You are continuing a Laravel mini CMS project. Constraints:
+  Network drop + reconnect → missed messages delivered (Last-Event-ID resume)
 
-Laravel + MySQL (Laragon Windows)
+  Unread counts correct for admin & guest (read_at, mark-read)
 
-Blade only, Tailwind via CDN (NO npm, NO Vite)
+  Typing works both directions (<=3s window)
 
-Custom auth (no Breeze)
+  Audio ping only after user interaction (no autoplay errors)
 
-UI: Minimal Japanese/SaaS frontend, Calm Admin backend.
+  Title (n) sync updates immediately on mark-read
 
-Implemented modules:
+  9) Project Status
+  - **Core Features**: Complete & Stable.
+  - **Chat Support**: Complete (Sprint 9.2).
+  - **E-commerce**: Phase 1 MVP Complete (+ Đã có bộ dữ liệu QA qua `ShopSeeder`).
+  - **Next Steps**: Maintenance & stability.
 
-Posts/Pages CRUD + SEO + Soft deletes + TinyMCE
 
-Analytics dashboard (Chart.js)
+  9) Handoff Prompt (for another AI)
 
-Activity logs with meta JSON
+  PROMPT START
+  You are continuing a Laravel mini CMS project. Constraints:
 
-Media library + folders + safe delete + metadata + media picker modal
+  Laravel + MySQL (Laragon Windows)
 
-Leads + settings + user management
+  Blade only, Tailwind via CDN (NO npm, NO Vite)
 
-Page Builder (ZIP upload, safe extract, serve static sites)
+  Custom auth (no Breeze)
 
-Chat Support:
+  UI: Minimal Japanese/SaaS frontend, Calm Admin backend.
 
-SSE real-time + polling fallback
+  Implemented modules:
 
-Last-Event-ID resume + heartbeat
+  Posts/Pages CRUD + SEO + Soft deletes + TinyMCE
 
-Unread via support_messages.read_at + mark-read endpoints
+  Analytics dashboard (Chart.js)
 
-Typing indicators via cache keys
+  Activity logs with meta JSON
 
-Admin UI notifications: sidebar dot, navbar bell badge, per-conversation badges, sound (audio unlock) + title sync.
+  Media library + folders + safe delete + metadata + media picker modal
 
-Current State:
-Project core features are complete. Focus is now on maintenance and stability.
+  Leads + settings + user management
 
-SCOPE NOTE (IMPORTANT):
-- Do NOT implement or suggest: media thumbnails, post scheduling, comments, newsletter.
-- Only work on tasks explicitly requested by the project owner.
-PROMPT END
+  Page Builder (ZIP upload, safe extract, serve static sites)
+
+  E-commerce (Phase 1):
+  - Product/Variant CRUD + Cartesian generation + Stock management
+  - Session-based cart + COD Checkout
+  - Order workflow (new → confirmed → packed → shipped → completed)
+  - Activity logging for all shop actions
+  - QA Test Data: Run `php artisan db:seed --class=ShopSeeder` to populate variants and active orders matrix.
+
+  Chat Support:
+
+
+  SSE real-time + polling fallback
+
+  Last-Event-ID resume + heartbeat
+
+  Unread via support_messages.read_at + mark-read endpoints
+
+  Typing indicators via cache keys
+
+  Admin UI notifications: sidebar dot, navbar bell badge, per-conversation badges, sound (audio unlock) + title sync.
+
+  Current State:
+  Project core features are complete. Focus is now on maintenance and stability.
+
+  SCOPE NOTE (IMPORTANT):
+  - Do NOT implement or suggest: media thumbnails, post scheduling, comments, newsletter.
+  - Only work on tasks explicitly requested by the project owner.
+  PROMPT END

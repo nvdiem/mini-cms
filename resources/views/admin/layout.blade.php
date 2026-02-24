@@ -166,6 +166,25 @@
         <span id="sidebarSupportBadge" class="hidden inline-flex h-2.5 w-2.5 rounded-full bg-rose-600 shadow-sm" aria-hidden="true"></span>
       </a>
 
+      <p class="px-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-6">Shop</p>
+
+      <a class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors {{ request()->is('admin/shop/products*') ? 'bg-primary/10 text-primary dark:bg-primary/15' : '' }}" href="{{ route('admin.shop.products.index') }}">
+        <span class="material-icons-outlined mr-3 text-[20px] {{ request()->is('admin/shop/products*') ? 'text-primary' : 'text-slate-400 group-hover:text-slate-500 dark:text-slate-500 dark:group-hover:text-slate-300' }}" aria-hidden="true">storefront</span>
+        Products
+      </a>
+
+      @if(auth()->user()->role === 'admin')
+      <a class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors {{ request()->is('admin/shop/orders*') ? 'bg-primary/10 text-primary dark:bg-primary/15' : '' }}" href="{{ route('admin.shop.orders.index') }}">
+        <span class="material-icons-outlined mr-3 text-[20px] {{ request()->is('admin/shop/orders*') ? 'text-primary' : 'text-slate-400 group-hover:text-slate-500 dark:text-slate-500 dark:group-hover:text-slate-300' }}" aria-hidden="true">receipt_long</span>
+        Orders
+      </a>
+
+      <a class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors {{ request()->is('admin/shop/settings*') ? 'bg-primary/10 text-primary dark:bg-primary/15' : '' }}" href="{{ route('admin.shop.settings.index') }}">
+        <span class="material-icons-outlined mr-3 text-[20px] {{ request()->is('admin/shop/settings*') ? 'text-primary' : 'text-slate-400 group-hover:text-slate-500 dark:text-slate-500 dark:group-hover:text-slate-300' }}" aria-hidden="true">tune</span>
+        Shop Settings
+      </a>
+      @endif
+
       @if(auth()->user()->role === 'admin')
       <p class="px-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-6">System</p>
       

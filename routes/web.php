@@ -22,6 +22,15 @@ use App\Http\Controllers\PublicSupportController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\Admin\SupportController;
 
+// Shop
+use App\Http\Controllers\ShopController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\Admin\Shop\ProductController as ShopProductController;
+use App\Http\Controllers\Admin\Shop\VariantController;
+use App\Http\Controllers\Admin\Shop\OrderController;
+use App\Http\Controllers\Admin\Shop\ShopSettingsController;
+
 // Installer Routes (must be before other routes)
 Route::prefix('install')->name('installer.')->group(function() {
     Route::get('/', [InstallerController::class, 'requirements'])->name('requirements');
@@ -123,6 +132,35 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'active_user'])->gro
     Route::delete('page-builder/{id}', [PageBuilderController::class, 'destroy'])->name('page-builder.destroy');
     Route::post('page-builder/{id}/activate', [PageBuilderController::class, 'activate'])->name('page-builder.activate');
 
+    // ── Shop Module ──
+    Route::prefix('shop')->name('shop.')->group(function(){
+        // Products (editor + admin)
+        Route::get('products', [ShopProductController::class, 'index'])->name('products.index');
+        Route::get('products/create', [ShopProductController::class, 'create'])->name('products.create');
+        Route::post('products', [ShopProductController::class, 'store'])->name('products.store');
+        Route::get('products/{product}/edit', [ShopProductController::class, 'edit'])->name('products.edit');
+        Route::put('products/{product}', [ShopProductController::class, 'update'])->name('products.update');
+        Route::post('products/{product}/publish', [ShopProductController::class, 'publish'])->name('products.publish');
+        Route::delete('products/{product}', [ShopProductController::class, 'destroy'])->name('products.destroy');
+        Route::post('products/{id}/restore', [ShopProductController::class, 'restore'])->name('products.restore');
+
+        // Variants
+        Route::post('products/{product}/variants/generate', [VariantController::class, 'generate'])->name('variants.generate');
+        Route::put('products/{product}/variants', [VariantController::class, 'update'])->name('variants.update');
+        Route::post('variants/{variant}/toggle', [VariantController::class, 'toggle'])->name('variants.toggle');
+        Route::post('variants/{variant}/stock-adjust', [VariantController::class, 'stockAdjust'])->name('variants.stock-adjust');
+
+        // Orders & Settings (admin only)
+        Route::middleware('admin')->group(function(){
+            Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
+            Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+            Route::post('orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.status');
+
+            Route::get('settings', [ShopSettingsController::class, 'index'])->name('settings.index');
+            Route::post('settings', [ShopSettingsController::class, 'update'])->name('settings.update');
+        });
+    });
+
     // Admin Only
     Route::middleware('admin')->group(function(){
         // Settings
@@ -152,3 +190,14 @@ Route::post('/lead', [PublicLeadController::class, 'store'])
 Route::get('/b/{slug}/{path?}', [PublicPageBuilderController::class, 'serve'])
     ->where('path', '.*')
     ->name('pagebuilder.show');
+
+// ── Public Shop ──
+Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
+Route::get('/shop/{slug}', [ShopController::class, 'show'])->name('shop.show');
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
+Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+Route::get('/order/{order_no}/thank-you', [CheckoutController::class, 'thankYou'])->name('checkout.thank-you');
