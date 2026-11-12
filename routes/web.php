@@ -78,13 +78,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'active_user'])->gro
     Route::get('/', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
 
     // Posts
-    Route::resource('posts', PostController::class);
+    Route::resource('posts', PostController::class)->except(['show']);
     Route::post('posts/bulk', [PostController::class, 'bulk'])->name('posts.bulk');
     Route::post('posts/{id}/restore', [PostController::class, 'restore'])->name('posts.restore');
     Route::get('posts/{post}/preview', [PostController::class, 'preview'])->name('posts.preview');
 
     // Pages
-    Route::resource('pages', PageController::class);
+    Route::resource('pages', PageController::class)->except(['show']);
     Route::post('pages/bulk', [PageController::class, 'bulk'])->name('pages.bulk');
     Route::post('pages/{id}/restore', [PageController::class, 'restore'])->name('pages.restore');
     Route::get('pages/{page}/preview', [PageController::class, 'preview'])->name('pages.preview');
@@ -101,7 +101,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'active_user'])->gro
     Route::post('media/folders', [\App\Http\Controllers\Admin\MediaFolderController::class, 'store'])->name('media.folders.store');
     Route::put('media/folders/{folder}', [\App\Http\Controllers\Admin\MediaFolderController::class, 'update'])->name('media.folders.update');
     Route::delete('media/folders/{folder}', [\App\Http\Controllers\Admin\MediaFolderController::class, 'destroy'])->name('media.folders.destroy');
-    Route::resource('media', MediaController::class)->parameters(['media' => 'media']);
+    Route::resource('media', MediaController::class)->except(['create', 'edit'])->parameters(['media' => 'media']);
 
     // Leads
     Route::get('leads', [LeadController::class, 'index'])->name('leads.index');

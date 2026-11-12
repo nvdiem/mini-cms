@@ -172,11 +172,14 @@
 
     // Options builder – load existing
     let optionIndex = 0;
-    const existingOptions = @json($product->options->map(fn($o) => [
-        'id' => $o->id,
-        'label' => $o->label,
-        'values' => $o->values->map(fn($v) => ['id' => $v->id, 'value' => $v->value])
-    ]));
+    @php
+      $existingOptions = $product->options->map(fn($o) => [
+          'id' => $o->id,
+          'label' => $o->label,
+          'values' => $o->values->map(fn($v) => ['id' => $v->id, 'value' => $v->value]),
+      ]);
+    @endphp
+    const existingOptions = @json($existingOptions);
 
     existingOptions.forEach(opt => addOption(opt));
 
